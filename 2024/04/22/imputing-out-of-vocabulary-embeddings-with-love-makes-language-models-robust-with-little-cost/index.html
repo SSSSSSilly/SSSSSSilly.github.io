@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ssssssilly.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Summary：State-of-the-art NLP systems represent inputs with word embeddings, but these are brittle when faced with Out-of-Vocabulary (OOV) words. To address this issue, we follow the principle of mimic">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Imputing Out-of-Vocabulary Embeddings with LOVE Makes Language Models Robust with Little Cost">
+<meta property="og:url" content="https://ssssssilly.github.io/2024/04/22/imputing-out-of-vocabulary-embeddings-with-love-makes-language-models-robust-with-little-cost/index.html">
+<meta property="og:site_name" content="Silly">
+<meta property="og:description" content="Summary：State-of-the-art NLP systems represent inputs with word embeddings, but these are brittle when faced with Out-of-Vocabulary (OOV) words. To address this issue, we follow the principle of mimic">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-04-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-04-21T16:45:37.392Z">
+<meta property="article:author" content="Qiu panjia">
+<meta property="article:tag" content="Text-defense">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ssssssilly.github.io/2024/04/22/imputing-out-of-vocabulary-embeddings-with-love-makes-language-models-robust-with-little-cost/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Imputing Out-of-Vocabulary Embeddings with LOVE Makes Language Models Robust with Little Cost | Silly</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Silly</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://ssssssilly.github.io/2024/04/22/imputing-out-of-vocabulary-embeddings-with-love-makes-language-models-robust-with-little-cost/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu panjia">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silly">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Imputing Out-of-Vocabulary Embeddings with LOVE Makes Language Models Robust with Little Cost
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-22 00:00:00 / Modified: 00:45:37" itemprop="dateCreated datePublished" datetime="2024-04-22T00:00:00+08:00">2024-04-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>Summary：</strong><br />State-of-the-art NLP systems represent inputs with word embeddings, but these are brittle when faced with Out-of-Vocabulary (OOV) words. To address this issue, we follow the principle of mimick-like models to generate vectors for unseen words, by learning the behavior of pre-trained embeddings using only the surface form of words. We present a simple contrastive learning framework, LOVE, which extends the word representation of an existing pre-trained language model (such as BERT), and makes it robust to OOV with few additional parameters. <br />Extensive evaluations demonstrate that our lightweight model achieves similar or even better performances than prior competitors, both on original datasets and on corrupted variants. <br />Moreover, it can be used in a plug-and-play fashion with FastText and BERT, where it signifificantly improves their robustness.</p>
+<p><strong>Background：</strong><br />词嵌入将单词表示为向量。它们在神经网络方法中发挥了重要作用，为许多自然语言处理（NLP）任务带来了令人印象深刻的性能提高。这些方法使用一个固定大小的词汇表。因此，他们只能处理在训练中看到的单词。虽然这在许多基准数据集上都很有效，但真实单词语料库通常噪音更大，并且包含了Out-of-Vocabulary（OOV）单词，即罕见单词、领域特定单词、俚语单词和有拼写错误的单词，这些在训练中没有出现过。使用看不见的单词，模型的性能会很差，微小的字符扰动会改变模型的预测。简单的实验如下图表明，在数据集上添加拼写错误，大大降低了文本分类模型的性能。<br /><br />为了缓解这一问题，率先在大规模数据集上使用形态特征（子词标记）预先训练单词嵌入。在这一方向上最突出的作品之一是FastText，它将字符级别的n-grams应用到skip-gram模型中。使用FastText，看不见的单词的向量可以通过将n-grams向量相加来计算。然而，这些子字级模型带来了巨大的成本：从头开始的预训练需求和高内存占用。因此，已经开发了一些更简单的方法，例如，MIMICK、BoS和KVQ-FH。它们只使用单词的表面形式，通过学习预先训练过的嵌入来生成看不见的单词的向量。<br />为了缓解OOV的问题，两个主要的挑战仍然存在。首先，模型仍然处于复杂性和性能之间的权衡：原始模拟是轻量级的，但不能一致地产生高质量的词向量。BoS和KVQ-FH虽然获得了更好的词表示，但还需要更多的参数。其次，这些模型不能与现有的预先训练过的语言模型一起使用，如BERT。然而，这些模型在该领域取得了很大的进步。到目前为止，这些高性能的模型在处理罕见词汇、拼写错误和领域特定词汇时仍然很脆弱。<br />我们设计了一个新的对比学习框架来学习预训练嵌入的行为，称为LOVE，学习Out-of-Vocabulary嵌入。我们的模型建立在节省内存的字符和子词混合输入上，而不是n-gram字符。它通过一个轻量级的位置注意模块对这个输入进行编码。在训练过程中，LOVE使用了新类型的数据增强和硬负向生成。然后，该模型能够产生高质量的单词表示，对字符扰动具有鲁棒性，而只消耗现有模型成本的一小部分。例如，具有6.5M参数的LOVE可以获得与具有超过900M参数的原始FastText模型相似的表示形式。更重要的是，我们的模型可以用于即插即用的模式。<br /><br />我们的轻量级OOV模型LOVE学习了预先训练过的嵌入数据（例如，FastText和BERT)的行为，然后能够为看不见的单词输入向量。LOVE可以以即插即用的方式增强现有单词表示的健壮性。</p>
+<p><strong>Related Work：</strong><br /><strong>Character-level Embeddings：</strong><br />为了解决OOV问题，一些方法在预训练期间将字符级特征注入单词嵌入中。这些方法的一个缺点是，它们需要从头开始在大规模语料库上进行预训练。因此，人们开发了更简单的模型，直接模拟训练良好的单词嵌入来输入OOV单词的向量。其中一些方法仅使用单词的表面形式来生成看不见的单词的嵌入，而其他人则使用表面和上下文信息来创建OOV向量。在这两种情况下，模型都需要过多的参数。<br /><strong>Pre-trained Language Models：</strong><br />目前，最先进的单词表示都是预先训练过的语言模型，如ELMo、BERT和XLnet，它们采用子词来避免OOV问题。然而，当面对罕见的单词和拼写错误时，BERT是很脆弱的。为了使BERT更强大，tigisBERT和CharBERT注入字符级特征，并对变体进行预训练。该方法可以显著提高BERT的性能和鲁棒性，但需要在大量数据上对自适应的transformer进行预训练。另一项关于消除拼写错误的工作建议在下游模型之前放置一个单词校正器，这是有效的和可重用的。该方法的主要缺点是，由单词校正器产生的错误会传播到下游任务。例如，将“aleph”转换为“alpha”可能会打破数学陈述的含义。事实上，使用校正器这个词总是会导致BERT在SST数据集上的性能下降（0.5-2.0个百分点）<br /><strong>Contrastive Learning：</strong><br />对比学习框架通过将正对拉在一起并将负对分开，从未标记的数据中学习表示。对于训练，正对通常是通过取同一样本的两个随机增广版本，并将一个小批中的其他增广例作为负例来获得的（Chen et al.，2017,2020）。最广泛使用的损失是信息系数损失（或对比损失）。虽然许多方法采用对比学习来表示句子，但到目前为止还没有应用于单词表示。</p>
+<p><strong>Method：</strong><br />LOVE (Learning Out-of-Vocabulary Embeddings) 利用对比学习的原则，最大限度地提高目标和生成的向量之间的相似性，并推动负对分开。对框架的概述如下图所示。它的灵感来自视觉表示学习的工作，但不同之处在于，其中一个正对是从预先训练的嵌入中获得的，而不是使用两个增强版本。在这个框架中，我们采用了五种新的单词级增强类型和一个轻量级的位置注意模块。此外，我们发现在训练过程中添加硬负数可以有效地产生更好的表示。我们在编码器层之后删除了非线性投影头，因为它的改进是特定于视野中的表示质量的。此外，我们的方法不是一个无监督的对比学习框架，而是一个有监督的学习方法<br />我们的框架从原始词汇表中提取一个单词，并使用数据增强来产生对它的破坏。例如，“misspelling”在删除一个字母“s”后就变成了“mispelling”。接下来，我们从预先训练好的原始单词的嵌入中获得一个目标向量，并为被损坏的单词生成一个向量。这两个向量是一对正样本，我们最大限度地提高它们之间的相似性，同时使负对的距离（同一小批中的其他样本）尽可能大。如前所述，我们使用对比损失作为一个目标函数。<br />具体来讲，有一个词表 V _，_以及它的embedding矩阵 W ,对于词 w ，他的word vector是 uw 。Mimick模型的目的是为了任何一个不属于 V 的词 w 估计出一个 vw。训练的目标是最小化 uw 和vw对之间的期望距离。<br /><br />这里的 φ（·）是距离函数，比如欧氏距离或者余弦距离。向量vw 由下式生成：<br /><br />这里的 _ζ_（·） 根据单词的表面形式将 w 映射到子单元列表。在此之后，序列被喂进函数 φ（·）中，去生成vector，它可以是CNN、RNN或者一些简单的求和函数。<br />Input Method:<br />我们使用WordPiece，词汇量约为30000个，来获得输入词的有意义的子词。对于misspelling这个单词，这会产生{miss, ##pel, ##ling }。然而，如果我们只是交换两个字母（如打字错误），那么序列就会完全不同： {mi，##sp，##sell，##ing }。因此，我们同时使用字符序列和子词。我们通过重新定义所有的单词，只保留每个单词的基部形式，并删除带有数字的单词，来减少我们的词汇量。这将使词汇量从30 000个减少到21 257个，而不会过度降低性能。<br />Encoder：<br />现在让我们设计第3.1节中提到的函数φ（·)。我们正在寻找一个函数，可以编码本地特征和全局特征。局部特征是字符n-grams，它提供了对字符交换或遗漏等微小变化的鲁棒性。全局特征结合了局部特征，而不考虑其距离。<br />对于单词misspelling，一种前缀和后缀的模式mis+ing可以通过结合单词的开头和结尾的本地信息来得到。传统的cnn、rnn和自我注意不能同时提取这种局部和全局信息。因此，我们设计了一个新的位置注意模块。假设我们有一个上述的混合输入序列和一个相应的嵌入矩阵V∈R|V|×d，其中d是向量的维数。然后输入可以用一组向量列表来表示：，n是input的长度。为了提取局部信息，我们首先采用位置注意获得n-gram，然后将其输入传统的自注意层，以全局方式组合。这一点可以写成：<br /><br />在这里，SA是一种标准的多头自我注意，而PA是一种位置注意。WO∈RdV×dO是一个可训练的参数矩阵，其中dV为SA和PA值的维数，dO为值的维数。对于位置注意，我们采用绝对正弦嵌入来计算位置相关性：<br /><br />这里，P∈Rn×d为位置嵌入，WV∈Rd×dV为相应的参数。</p>
+<p>Loss Function：<br />mimick的模型通常采用均方误差（MSE），它试图给出具有相同表面形式的单词相似的嵌入。然而，MSE只会将正词对拉得更近，而不会将负词对分开。因此，我们使用对比损失来代替。对比损失优化了两个关键特性：对齐和均匀性。对齐描述了正对之间的预期距离（接近度）：<br /><br />这里，ppos是正对的分布。均匀度测量学习到的表示是否在超球体中均匀分布。<br /><br />这里，pdata为数据分布，t &gt; 0为参数。这两个属性与我们期望的词表示相一致：正词对应该保持接近，负词对应该彼此远离，最后分散在超球面上。<br />Data Augmentation and Hard Negatives：<br />我们的正词对是通过数据增强来生成的，这可以通过使用现有的数据来增加训练样本的数量。我们使用了不同的策略来增加我们的训练样本的多样性：<br /><br /> (1)交换两个相邻的字符，(2)删除一个字符，(3)插入一个新的字符，(4)根据键盘距离替换一个字符，(5)用一个同义词替换原始单词。前四个增强功能最初是为了防止对抗性攻击。我们添加了同义词替换策略，以保持嵌入空间中词义相似的单词——这是表面形式无法实现的。具体来说，一组同义词是通过从FastText等预训练的嵌入中检索最近的邻居来获得的。<br />负词对通常是从小批量处理中随机选择的。然而，我们训练我们的模型对硬的否定（或困难的否定）具有特别的弹性，即，具有相似的表面形式但含义不同的单词(e.g., misspelling and dispelling）。为此，我们通过选择非同义词且编辑距离较小的单词对，将其中一定数量的硬负样本添加到mini-batch中（目前为3个）。<br />Mimicking Dynamical Embeddings:<br />预先训练的语言模型和BERT基于特定的上下文动态生成单词表示，这不能直接模拟。为此，我们有两种选择：我们可以在多层注意之前学习BERT中输入嵌入的行为，或者模拟静态蒸馏嵌入。<br />我们以BERT为例来解释这两种方法。假设我们在应用到一个句子后有一个子单词序列： 。对于子词序列W，BERT首先将其表示为子词嵌入列表：。我们将这个称为静态表示BERT的输入嵌入，我们可以使用我们的模型来模拟这部分的行为。我们称这种方法为模拟输入嵌入。为了便于实现，我们只从没有被分割成的单词中学习。在此步骤之后，BERT对输入嵌入Ein应用一个多层多头注意，从而产生一个上下文表示每个子字：。然而，这些上下文表征根据输入的句子而不同，我们不能直接从中学习。相反，我们选择模仿从BERT中提取的静态嵌入，这是通过汇集不同句子中单词的上下文嵌入（最大或平均)来获得的。我们把这种方法称为模拟蒸馏嵌入的方法。后者允许更好的单词表示，而前者不需要在大规模语料库上进行训练。我们的实证研究表明，模拟蒸馏嵌入的性能仅略好一些。因此，我们决定学习BERT的输入嵌入，这既简单又有效。<br />即插即用：<br />模型的一个关键优点是，它可以用作其他模型的插件。对于像FastText这样具有静态单词嵌入的模型，可以简单地使用该模型来生成看不见的单词的向量。对于像BERT这样具有动态单词嵌入的模型，如果一个单词被标记化为几个部分，例如misspelling&#x3D; {miss，##pel，##ling }，我们认为它看作一个OOV单词。然后，我们用模型在注意层之前产生的单一嵌入来替换子词的嵌入。</p>
+<p><strong>Experiments：</strong><br />评价词的表征主要有两种方法：内在的和外在法。内在评价直接度量单词之间的句法或语义关系，例如，词集群中的单词相似性。外部评估是衡量了单词嵌入作为下游任务的输入特征的性能，例如，命名实体识别（NER）和文本分类。一些研究表明，内在和外在评价结果之间没有一致的相关性。因此，我们通过内在和外在的指标来评估表示。具体来说，我们使用了8个内在数据集（6个单词相似度和2个单词聚类任务）：RareWord、SimLex、MTurk、MEN、WordSim、Simverb , AP and BLESS。我们使用了四个外部数据集（2个文本分类和2个NER任务）：SST2、MR、CoNLL-03和BC2GM。值得注意的是，RareWord数据集包含许多长尾词，而BC2GM是一个特定于领域的NER数据集。所有的数据扩充和类型错误模拟都由NLPAUG1实现。<br />上表显示了8个内在任务的实验结果。与其他类似模拟的模型相比，我们的模型在8个数据集上获得了最好的平均分数，同时使用了最少的参数数量。具体来说，我们的模型在5个单词相似性任务上表现最好，在单词聚类任务上表现第二。尽管我们的模型和原始的FastText之间存在差距，但我们发现我们的性能是可以接受的，因为我们的模型要小100倍。<br /><br />上表显示了在SST2和CoNLL-03数据集上的性能。我们观察到，该模型可以提高原始嵌入的鲁棒性，而不降低其性能。此外，我们发现，与其他常用的方法相比，我们的模型对看不见的单词更健壮：一个通用的UNK标记或神经网络的字符级表示。<br /><br />上图表示了鲁棒性检查不同的策略。FastText+LOVE对SST2和CoNLL-03数据集都有一致的改进。与此同时，LOVE在原始数据集上的性能。<br /><br />为了验证我们的混合输入策略的效果，我们将其与其他两种方法进行了比较：只使用字符序列或只使用子词序列。从上表中可以看出，混合方法获得了更好的表示效果，任何去除字符或子字信息都会降低性能。<br />为了对输入序列进行编码，我们开发了位置注意模块（PAM），它首先提取类似ngram的局部特征，然后使用无距离限制的自注意进行组合。上表显示，PAM表现最好，这验证了我们在单词中合并局部和全局部分的策略。同时，相比之下。PAM的参数数量是可接受的。<br />上表中：，对比损失明显优于MSE。<br />在上表中，我们观察到去除我们的硬负数会降低性能，这表明了具有相似表面形式的语义上不同的词的重要性。LOVE使用了五种类型的单词增强功能。我们发现，删除这种增强不会降低单词相似任务的性能，而会导致文本分类任务（表5的最后一行）下降0.4分，其中数据增强有助于处理拼写错误。在图A3和图A4的附录中，我们进一步分析了在RareWord和SST2上的单个和复合增强的性能。我们发现，所有五种类型的组合都会产生最好的结果。<br /><br />（1）Linear：<br />其中，esub∈Rd是BERT的一个子字向量，eword∈Rd是我们的模型中生成的一个向量。W∈Rd是可训练的参数。<br />（2)Add：它们都可以在不降低原始能力的情况下给BERT带来一定程度的鲁棒性，这证明了我们的框架的有效性。其次，替代策略始终表现最好。我们推测，BERT不能为那些罕见的、拼写错误的单词恢复合理的意义，而我们生成的向量可以位于空间中原始单词的附近。第三，我们发现mimicking distilled embeddings表现最好，而mimicking input embeddings则很接近。考虑到第一种方法需要对大规模数据进行训练，mimicking input embeddings是我们选择的方法。</p>
+<p><strong>Conclusion：</strong><br />我们提出了一个轻量级的对比学习框架，LOVE，来学习即使在面对词汇量之外的单词时也很健壮的单词表示。通过一系列的实证研究，我们已经表明，与其他类似模拟的模型相比，我们的模型（只有650万参数）可以在内在和外在评价上实现相似甚至更好的单词嵌入。此外，我们的模型可以以即插即用的方式添加到具有静态嵌入（如FastText）或动态嵌入（如BERT）的模型中，并在那里带来显著的改进。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Text-defense/" rel="tag"># Text-defense</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/21/connecting-large-language-models-with-evolutionary-algorithms-yields-powerful-prompt-optimizers/" rel="prev" title="CONNECTING LARGE LANGUAGE MODELS WITH EVOLUTIONARY ALGORITHMS YIELDS POWERFUL PROMPT OPTIMIZERS">
+      <i class="fa fa-chevron-left"></i> CONNECTING LARGE LANGUAGE MODELS WITH EVOLUTIONARY ALGORITHMS YIELDS POWERFUL PROMPT OPTIMIZERS
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/04/22/conclusion/" rel="next" title="conclusion">
+      conclusion <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu panjia</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Qiu panjia</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
