@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>conclusion</title>
+      <link href="/2024/04/22/conclusion/"/>
+      <url>/2024/04/22/conclusion/</url>
+      
+        <content type="html"><![CDATA[<h2 id="总结与反思"><a href="#总结与反思" class="headerlink" title="总结与反思"></a>总结与反思</h2><p><strong>博客主题及选取原因：</strong>该博客的风格整体体现出简单高级的感觉。</p><p><strong>页面布局及设计思路：</strong>为了使页面更加的鲜活，加入了个人照片，体现出博客的丰富性，且更加吸引人。并且引入文章的分类很文章列表，能更有效的管理文章。</p><p><strong>实现及技术选择：</strong>Hexo：是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他标记语言）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。</p><p><strong>博客制作过程中遇到的问题及其解决方法：</strong></p><p>问题1：本地运行正常，但网页运行无法加载CSS样式，只剩下文本</p><p>解决方法：检查缓存和文件路径两个要素，发现是没有清理缓存，在hexo clean清除完成之后，hexo g -d部署后就能正常显示。</p><p>问题2：系统提示error: RPC failed; result&#x3D;22, HTTP code &#x3D; 403</p><p>fatal: ‘username.github.io’ does not appear to be a git repository</p><p>解决方案：检查之后发现git配置错误，重新配置git并添加公钥之后，错误解决。</p><p>问题3：问题始终无法正常显示。</p><p>解决方案：从文件路径，markdown语法书写方式两个方面确认，发现是文件路径问题导致无法将图片文件加载到public文件夹中，修改后解决问题。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> conclusion </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hello World</title>
       <link href="/2024/04/21/hello-world/"/>
       <url>/2024/04/21/hello-world/</url>
