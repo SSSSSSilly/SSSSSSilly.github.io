@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ssssssilly.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Summary：Natural language processing models are vulnerable to adversarial examples. Previous textual adversarial attacks adopt model internal information (gradients or confidence scores) to generate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LimeAttack_ Local Explainable Method for Textual Hard-Label Adversarial Attack">
+<meta property="og:url" content="https://ssssssilly.github.io/2024/04/21/limeattack-local-explainable-method-for-textual-hard-label-adversarial-attack/index.html">
+<meta property="og:site_name" content="Silly">
+<meta property="og:description" content="Summary：Natural language processing models are vulnerable to adversarial examples. Previous textual adversarial attacks adopt model internal information (gradients or confidence scores) to generate">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089503148-356974c7-6793-4ffa-b47b-2595d0e1364d.png#averageHue=%23faf3ef&clientId=u205d476f-211d-4&from=paste&height=317&id=uf37b2f55&originHeight=317&originWidth=440&originalType=binary&ratio=1&rotation=0&showTitle=false&size=38163&status=done&style=none&taskId=u1ca1d600-8c34-40f5-9c3f-e8a1c9127f8&title=&width=440">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=ubba0481d&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089585703-40d46f49-a711-405e-b0ca-e84cca7a4883.png#averageHue=%23f8f5f1&clientId=u205d476f-211d-4&from=paste&height=21&id=u0d60b16c&originHeight=21&originWidth=168&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2180&status=done&style=none&taskId=u7f630321-5010-4977-a527-082fccb0629&title=&width=168">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089598890-71ad893e-2c77-4b60-8fa5-07f73f5b6fb5.png#averageHue=%23f9f7f4&clientId=u205d476f-211d-4&from=paste&height=31&id=u33818c77&originHeight=31&originWidth=309&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3441&status=done&style=none&taskId=ud5f4e263-62d2-451e-b135-c2d5a738f24&title=&width=309">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=lfweb&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089585703-40d46f49-a711-405e-b0ca-e84cca7a4883.png#averageHue=%23f8f5f1&clientId=u205d476f-211d-4&from=paste&height=21&id=qKkQB&originHeight=21&originWidth=168&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2180&status=done&style=none&taskId=u7f630321-5010-4977-a527-082fccb0629&title=&width=168">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089752208-193d9413-d2c3-41fc-b489-51232e269fef.png#averageHue=%23faf8f6&clientId=u205d476f-211d-4&from=paste&height=58&id=u4a4053c1&originHeight=58&originWidth=225&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4777&status=done&style=none&taskId=u006c5efd-3614-4f1a-8127-4ae494cd5ae&title=&width=225">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/267af57eb97a3e28c946702f3f0e6246.svg#card=math&code=x_i%3Dx%27_i&id=g80Xh">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089824738-42310a7c-f7e8-4831-9a24-c1d1eb250170.png#averageHue=%23f4f1ee&clientId=u205d476f-211d-4&from=paste&height=27&id=uc11cb973&originHeight=27&originWidth=88&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2048&status=done&style=none&taskId=u6f44cbcf-b438-43c7-80db-4ffeae02cf8&title=&width=88">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=UnCGN&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089942190-a156e219-6205-4601-aafc-5d2770c73a24.png#averageHue=%23f7f4f0&clientId=u205d476f-211d-4&from=paste&height=27&id=ub95ec821&originHeight=27&originWidth=167&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2482&status=done&style=none&taskId=ua89e5148-c82b-4453-967c-6af1ebb03e2&title=&width=167">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089958222-c5deaa51-10e0-46d2-90d6-50db78767dd6.png#averageHue=%23faf8f6&clientId=u205d476f-211d-4&from=paste&height=55&id=u90c97d9b&originHeight=55&originWidth=241&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4874&status=done&style=none&taskId=u5c560305-9b76-4ce8-9717-e1fa1851581&title=&width=241">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090026904-ad91c62b-8bae-451a-a9d5-aa26ddf25c11.png#averageHue=%23fbf8f3&clientId=u205d476f-211d-4&from=paste&height=26&id=u634f4b3b&originHeight=26&originWidth=98&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1920&status=done&style=none&taskId=u63d09a12-0526-478b-b79b-cc80cbf3c6f&title=&width=98">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090101587-0e2294ec-0168-4f1f-a631-f628069723f3.png#averageHue=%23f7f2ed&clientId=u205d476f-211d-4&from=paste&height=24&id=ub8890689&originHeight=24&originWidth=73&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1687&status=done&style=none&taskId=uc93e74b6-f18f-4fd3-8225-15167c29388&title=&width=73">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090087444-0bdee6a4-8fcb-4bdb-a8f9-7d33bc5a5290.png#averageHue=%23f9f6f3&clientId=u205d476f-211d-4&from=paste&height=32&id=u81a7be0c&originHeight=32&originWidth=265&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3770&status=done&style=none&taskId=u45ae6c57-c641-4a96-a6cf-c6384f0f64d&title=&width=265">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090126360-3ae96ce0-daf9-40a1-94f2-385c056216e8.png#averageHue=%23f7f5f3&clientId=u205d476f-211d-4&from=paste&height=59&id=u0edc6481&originHeight=59&originWidth=180&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3380&status=done&style=none&taskId=ub6ecf893-91f6-44fc-92ff-f3a2a8b35df&title=&width=180">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090162382-abfd654c-15fb-4950-8956-3fc0e80c3edf.png#averageHue=%23f4f1ef&clientId=u205d476f-211d-4&from=paste&height=584&id=ub488e8bf&originHeight=584&originWidth=936&originalType=binary&ratio=1&rotation=0&showTitle=false&size=198011&status=done&style=none&taskId=ucdbe0b13-1cb2-4460-a6d1-8bcc602cd47&title=&width=936">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090248704-42c4b2c5-7f6a-42f9-a06b-225b72968998.png#averageHue=%23fbf9f7&clientId=u205d476f-211d-4&from=paste&height=60&id=u56fb5f10&originHeight=60&originWidth=392&originalType=binary&ratio=1&rotation=0&showTitle=false&size=8232&status=done&style=none&taskId=ube492b17-2310-4b9a-9aaf-7ac76c3902c&title=&width=392">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090493904-761cff9e-c1a5-4ea0-b875-1c69645283f1.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=23&id=uabb004b0&originHeight=23&originWidth=279&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2621&status=done&style=none&taskId=u54a4893e-92d1-4bdb-aee6-5c4fa9ba869&title=&width=279">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090887348-ece0b49a-2c0c-442f-aea3-72c31f77c1de.png#averageHue=%23f6f2ee&clientId=u205d476f-211d-4&from=paste&height=27&id=u543fb0b5&originHeight=27&originWidth=148&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3357&status=done&style=none&taskId=u4d36c8b9-6ca1-4358-9f69-88d5f4e1bad&title=&width=148">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/7ca2ff984e95d4a9e44fe7498e281020.svg#card=math&code=X_i&id=yePtF">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/99f45a182fbbb1d1f79bea448076630f.svg#card=math&code=Y_i&id=A3oMc">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091014421-76e35b59-42c3-44b8-ad2b-f1f6642228b2.png#averageHue=%23f8f7f5&clientId=u205d476f-211d-4&from=paste&height=64&id=uf805e27d&originHeight=64&originWidth=278&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7216&status=done&style=none&taskId=u4c306b06-9552-4437-96d2-cde0b5f8a0e&title=&width=278">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091435662-5ead375d-6cda-47d8-8c0d-3777862ca7f3.png#averageHue=%23f5f2f1&clientId=u205d476f-211d-4&from=paste&height=322&id=u397ba52f&originHeight=322&originWidth=441&originalType=binary&ratio=1&rotation=0&showTitle=false&size=51809&status=done&style=none&taskId=ue8fc8449-47e3-47e3-8b4e-e9883ac505a&title=&width=441">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091646301-764732dc-2c27-4257-aaf1-0e9cc6a0250a.png#averageHue=%23f6f4f2&clientId=u205d476f-211d-4&from=paste&height=457&id=ub240c6aa&originHeight=457&originWidth=926&originalType=binary&ratio=1&rotation=0&showTitle=false&size=109203&status=done&style=none&taskId=u2d47fec8-4347-4a31-8835-9c9732a57b2&title=&width=926">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091662606-c6b96a56-dcc3-4d81-9bcf-3da7ef85f3e4.png#averageHue=%23f3f1ef&clientId=u205d476f-211d-4&from=paste&height=203&id=ua8f425aa&originHeight=203&originWidth=921&originalType=binary&ratio=1&rotation=0&showTitle=false&size=37930&status=done&style=none&taskId=u298c91bb-5ec7-49d6-9924-4423080233c&title=&width=921">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091808204-eb27f06c-02a7-4cf5-8fb6-e9f3dc093fc6.png#averageHue=%23f4f1ee&clientId=u205d476f-211d-4&from=paste&height=232&id=ue3d4842e&originHeight=232&originWidth=438&originalType=binary&ratio=1&rotation=0&showTitle=false&size=42045&status=done&style=none&taskId=u5e6b5a6c-2642-4fa4-947f-58f54f56f9d&title=&width=438">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091828619-ca845d9a-d512-4d3a-8cbd-728f53a43111.png#averageHue=%23f3f0ed&clientId=u205d476f-211d-4&from=paste&height=239&id=ue9662c52&originHeight=239&originWidth=454&originalType=binary&ratio=1&rotation=0&showTitle=false&size=47878&status=done&style=none&taskId=u65e74b4c-485f-4a99-a2a7-7ffa0924bb6&title=&width=454">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092061432-882bf24a-ce46-4896-998d-39180f92b8d6.png#averageHue=%23f3f1ee&clientId=u205d476f-211d-4&from=paste&height=245&id=u64e506cb&originHeight=245&originWidth=436&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36528&status=done&style=none&taskId=ucbb7b4ad-4705-474e-ae06-ab3d97a3cee&title=&width=436">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092116737-7ecb9243-d233-411d-a08b-0e126a018fd3.png#averageHue=%23f1eeeb&clientId=u205d476f-211d-4&from=paste&height=188&id=uad4f31ca&originHeight=188&originWidth=434&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36376&status=done&style=none&taskId=uaa889d5d-52d4-441f-8624-203e2d99f0d&title=&width=434">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092190675-cb5217ff-9c97-46da-82f8-db28f57b260a.png#averageHue=%23f4f2ef&clientId=u205d476f-211d-4&from=paste&height=197&id=u465ca341&originHeight=197&originWidth=440&originalType=binary&ratio=1&rotation=0&showTitle=false&size=29130&status=done&style=none&taskId=u303469a4-60da-418b-92e9-7157ee63aa0&title=&width=440">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092296864-9ec93680-63f3-4d96-ae06-563e05772e54.png#averageHue=%23f1eeec&clientId=u205d476f-211d-4&from=paste&height=177&id=u584b228d&originHeight=177&originWidth=863&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36445&status=done&style=none&taskId=u2d9bd364-082b-4af1-ae11-75568da0b57&title=&width=863">
+<meta property="article:published_time" content="2024-04-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-04-21T13:33:21.561Z">
+<meta property="article:author" content="Qiu panjia">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089503148-356974c7-6793-4ffa-b47b-2595d0e1364d.png#averageHue=%23faf3ef&clientId=u205d476f-211d-4&from=paste&height=317&id=uf37b2f55&originHeight=317&originWidth=440&originalType=binary&ratio=1&rotation=0&showTitle=false&size=38163&status=done&style=none&taskId=u1ca1d600-8c34-40f5-9c3f-e8a1c9127f8&title=&width=440">
+
+<link rel="canonical" href="https://ssssssilly.github.io/2024/04/21/limeattack-local-explainable-method-for-textual-hard-label-adversarial-attack/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>LimeAttack_ Local Explainable Method for Textual Hard-Label Adversarial Attack | Silly</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Silly</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://ssssssilly.github.io/2024/04/21/limeattack-local-explainable-method-for-textual-hard-label-adversarial-attack/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu panjia">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silly">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LimeAttack_ Local Explainable Method for Textual Hard-Label Adversarial Attack
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-21 00:00:00 / Modified: 21:33:21" itemprop="dateCreated datePublished" datetime="2024-04-21T00:00:00+08:00">2024-04-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <span id="more"></span>
+
+<p><strong>Summary：</strong><br />Natural language processing models are vulnerable to adversarial examples. Previous textual adversarial attacks adopt model internal information (gradients or confidence scores) to generate adversarial examples. However, this information is unavailable in the real world. Therefore, we focus on a more realistic and challenging setting, named hard-label attack, in which the attacker can only query the model and obtain a discrete prediction label. Existing hard-label attack algorithms tend to initialize adversarial examples by random substitution and then utilize complex heuristic algorithms to optimize the adversarial perturbation. These methods require a lot of model queries and the attack success rate is restricted by adversary initialization. In this paper, we propose a novel hard-label attack algorithm named LimeAttack, which leverages a local explainable method to approximate word importance ranking, and then adopts beam search to find the optimal solution. Extensive experiments show that LimeAttack achieves the better attacking performance compared with existing hard-label attack under the same query budget. In addition, we evaluate the effectiveness of LimeAttack on large language models and some defense methods, and results indicate that adversarial examples remain a significant threat to large language models. The adversarial examples crafted by LimeAttack are highly transferable and effectively improve model robustness in adversarial training.</p>
+<p><strong>Background：</strong><br />深度神经网络（DNN）广泛应用于自然语言处理领域并取得了巨大成就成功（Kim 2014；Devlin 等人 2019；Minaee 等人 2021；Hochreiter 和Schmidhuber 1997）。 然而，DNN 很容易受到对抗性示例的影响，而这些示例被正确分类样本因一些轻微的扰动而改变（Jin et al. 2020；帕佩诺特等人。 2017年； Kurakin、Goodfellow 和 Bengio 2016）。这些对抗性扰动是人类无法察觉的但可能会误导模型。 严重的对抗性例子威胁 DNN 的鲁棒性和可靠性，尤其是在一些安全关键型应用（例如自动驾驶和有毒文本检测（Yang et al. 2021；Kurakin, Good Fellow 和 Bengio 2018））。 因此，对抗性例子计算机视觉、自然语言处理等领域的对抗性攻击和防御引起了极大的关注演讲（Szegedy 等人，2013 年；Carlini 和 Wagner，2018 年；Yu等人。 2022）。 制作文本对抗性更具挑战性由于语言的离散性质以及词汇、语义和流畅性限制的存在。<br />根据不同场景，进行文本对抗攻击可以简单分为白盒攻击、基于分数的攻击和硬标签攻击。 在白盒设置中，攻击者利用模型的参数和梯度来生成对抗性示例（Goodman、Zhonghou et al. 2020；江等人。 2020）。 基于分数的攻击仅采用类别概率或置信度分数来制作对抗性示例（Jin等人。 2020； 李等人。 2020； 马、史、管2020； 朱，赵和吴 2023）。 然而，由于 DNN 是通过以下方式部署的，这些攻击方法在现实中表现不佳应用程序编程接口（API）和攻击者无法访问模型的参数、所有标签的梯度或概率分布（Ye 等人，2022b）。 相比之下，在硬标签场景下，模型的内部结构，梯度、训练数据甚至置信度分数都是不可用的。 攻击者只能查询黑盒受害者模型并得到离散的预测标签，这更具有挑战性和现实性。 此外，最真实的模型（例如HuggingFace API、OpenAI API）通常有限制关于通话次数。 事实上，对抗性例子攻击设置是带有微小模型查询的硬标签。<br />一些硬标签攻击算法已经被提出（Yu等人。 2022 年； 叶等人。2022b； 马赫什瓦里、马赫什瓦里和普地2021； 叶等人。 2022a）。 他们遵循两阶段策略：i）通过随意用同义词替换几个原始单词来生成低质量的对抗性示例，以及然后 ii) 采用复杂的启发式算法（例如遗传算法）来优化对手的扰动。 所以，这些攻击方法通常需要大量查询，并且攻击成功率和对抗样本的质量是受到对手初始化的限制。 相反，基于分数的攻击根据删除一个单词后置信度分数发生变化。 单词重要性排序通过优先提高攻击效率攻击对模型有重大影响的词预测（Jin 等人，2020）。 然而，基于分数的攻击无法计算硬标签设置中的单词重要性因为删除一个标记几乎不会改变离散预测标签。 因此，我们要研究这样一个问题：如何计算硬标签中的单词重要性排名设置以提高攻击效率？<br />实际上，单词重要性排名可以揭示决策边界以确定更好的攻击路径，但现有的硬标签算法忽略了这些有用的信息因为它很难获得。 受到当地可解释的启发方法（Ribeiro、Singh 和 Guestrin 2016；Lundberg 和李2017; 什里库马尔等人。 2016）对于 DNN，有 10 个用于解释黑盒模型的输出，目标估计良性样本的标记敏感性。 之前的研究（Chai et al. 2023）试图简单地替换基于删除的方法和局部可解释的方法来计算基于分数的攻击中的单词重要性。 然而，在附录B，我们通过实验验证了本地可解释的方法没有显着优势在基于分数的场景中优于基于删除的方法。 因为模型输出的概率分布是可用，每个词对输出的影响可以是基于删除的方法很好地反映了这一点。 因此，与基于分数的攻击相比，我们认为局部可解释方法在硬标签攻击中可以发挥更大的优势基于删除的方法是无用的。 我们采用最多基本且直接的本地可解释方法，即石灰。 LIME 简单易懂，更符合使用基于分数的攻击中提出的基于删除的方法，因为我们的目标是弥合基于分数的攻击之间的差距通过引入可解释性方法来攻击和硬标签攻击。 事实上，局部可解释方法与模型无关，适合对硬标签攻击进行单词重要性估计。 然而，有以下几种情况将 LIME 应用于硬标签攻击的困难：1）如何在极小的查询预算下分配 LIME 和搜索查询以达到最佳效果。 2）如何建立映射在没有模型 Logits 输出的情况下，LIME 与对抗性样本中单词重要性之间的关系。 3) 如何取样在扰动执行期间合理地实现最优结果。 在随后的课程中我们将详细解释如何来解决这些困难。<br /><strong>Contributions：</strong><br />在这项工作中，我们提出了一种新的硬标签攻击算法，称为极限攻击。LIME在硬标签攻击中的应用是受到基于分数的攻击删除方法的启发。我们验证了内外攻击路径在硬标签攻击中的有效性，然后许多优秀的基于分数的攻击可以为硬标签攻击提供更多的见解。为了评估攻击的性能和效率，我们将Lime攻击与其他硬标签攻击进行了比较，并将一些基于分数的攻击作为7个常见数据集上的两个NLP任务的参考。我们还评估了目前最先进的大型语言模型（例如，ChatGPT）的限制eattack。实验表明，在微小的查询预算下，极限攻击比其他基线获得了最高的攻击成功率。我们的贡献总结如下：</p>
+<ul>
+<li>总结了现有硬标签攻击的不足，并应用LIME将分数基攻击与硬标签攻击连接起来，验证了内外攻击路径在硬标签攻击中的有效性。</li>
+<li>大量实验表明，在小预算的查询情况下，有限攻击比现有的硬标签攻击算法具有更高的攻击成功率。与此同时，由极限攻击制作的对抗性例子是高质量的，人类很难区分。</li>
+<li>此外，我们还对当前最先进的大型语言模型进行攻击和评估。结果表明，敌对的例子仍然是对大型语言模型的一个重大威胁。我们还增加了防御方法的攻击性能，以及攻击成功率和扰动率的收敛结果。</li>
+</ul>
+<p><strong>Method：</strong><br /><strong>硬标签对抗性攻击</strong><br />在硬标签设置中，攻击者只能查询受害者模型并获得离散预测标签。 因此，硬标签设置更具实用性和挑战性。 现有的硬标签攻击包含两阶段策略，即对手初始化和扰动优化。 HLBB（Mahesh wary、Maheshwary 和 Pudi 2021）初始化对抗性示例并采用遗传算法来优化扰动。 TextHoaxer（Ye 等人，2022b）和 LeapAttack（Ye 等人，2022b）2022a) 利用语义相似性和扰动率作为优化目标是在连续词嵌入空间中搜索更好的扰动矩阵。 文本黑客（于等人。 2022）采用混合本地搜索算法和单词从攻击历史中学习的重要性表来指导本地搜索。 这些攻击方法往往需要大量的查询降低扰动率，降低攻击成功率对手的质量受到初始化的限制。 因此，在这项工作中，我们尝试制作一个对抗性示例直接来自良性样本。 这种方法可以生成具有更少查询的高质量对抗性示例。<br /><strong>局部可解释方法</strong><br />为了提高 DNN 可解释性并辅助决策，已经提出了各种解释 DNN 的方法并大致分为全局或局部可解释方法。 全局可解释方法侧重于模型本身使用有关模型架构的整体知识和参数。 相反，本地方法适合简单的和可解释模型（例如决策树）到单个输入衡量每个代币的贡献。 详细点，本地可解释的方法（Lundberg 和 Lee 2017；Shrikumar等人。 2016年； ˇStrumbelj 和 Kononenko 2014) 将所有通过定义线性可解释性模型来输入标记假设输入中每个令牌的贡献是添加剂。 这也称为附加特征归因方法。 在本文中，局部可解释模型不可知解释（LIME）（Ribeiro、Singh 和 Guestrin 2016）是用于计算单词重要性，这是一个基本的和代表性的局部可解释方法。 直觉LIME是通过删除来生成很多邻域样本良性示例中的一些原始单词。 这些样品然后用于训练线性模型，其中特征等于良性样本中的单词数。该线性模型的参数近似于每个单词的重要性。 由于 LIME 与模型无关，因此适合硬标签攻击。<br /><strong>现有硬标签攻击的局限性</strong><br />为了直观地比较两者的区别LimeAttack 和现有的硬标签攻击算法，我们创建图 3 中的攻击搜索路径可视化。LimeAt Tack 的搜索路径由绿线表示，它们从内部移动到外部。 LimeAttack 利用本地可解释的方法来学习单词重要性排名，并从良性样本中迭代生成对抗性示例。这有助于 LimeAttack 找到最近的决策边界方向，并且攻击关键字的模型查询成本更少优先。 相比之下，以前的硬标签攻击算法的搜索路径是用蓝线表示的，它们从外向内移动。 这些算法通常从随机初始化的对抗性示例开始，通过最大化初始化示例和良性样本之间的语义相似性来优化扰动，这需要大量的模型查询来实现低扰动速度。 此外，他们的攻击成功率和对手质量也受到对手初始化的限制。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089503148-356974c7-6793-4ffa-b47b-2595d0e1364d.png#averageHue=%23faf3ef&clientId=u205d476f-211d-4&from=paste&height=317&id=uf37b2f55&originHeight=317&originWidth=440&originalType=binary&ratio=1&rotation=0&showTitle=false&size=38163&status=done&style=none&taskId=u1ca1d600-8c34-40f5-9c3f-e8a1c9127f8&title=&width=440" alt="image.png"><br /><strong>问题公式</strong><br />给定一个n个单词<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=ubba0481d&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172" alt="image.png">及其地面真相标签Y，一个对立的例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089585703-40d46f49-a711-405e-b0ca-e84cca7a4883.png#averageHue=%23f8f5f1&clientId=u205d476f-211d-4&from=paste&height=21&id=u0d60b16c&originHeight=21&originWidth=168&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2180&status=done&style=none&taskId=u7f630321-5010-4977-a527-082fccb0629&title=&width=168" alt="image.png">是通过用同义词替换一个或多个原始词来误导受害者模型F而制作的。i.e.,<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089598890-71ad893e-2c77-4b60-8fa5-07f73f5b6fb5.png#averageHue=%23f9f7f4&clientId=u205d476f-211d-4&from=paste&height=31&id=u33818c77&originHeight=31&originWidth=309&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3441&status=done&style=none&taskId=ud5f4e263-62d2-451e-b135-c2d5a738f24&title=&width=309" alt="image.png"><br />D（·，·）是一个编辑距离，测量良性样本<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=lfweb&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172" alt="image.png">和对抗性例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089585703-40d46f49-a711-405e-b0ca-e84cca7a4883.png#averageHue=%23f8f5f1&clientId=u205d476f-211d-4&from=paste&height=21&id=qKkQB&originHeight=21&originWidth=168&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2180&status=done&style=none&taskId=u7f630321-5010-4977-a527-082fccb0629&title=&width=168" alt="image.png">之间的修改：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089752208-193d9413-d2c3-41fc-b489-51232e269fef.png#averageHue=%23faf8f6&clientId=u205d476f-211d-4&from=paste&height=58&id=u4a4053c1&originHeight=58&originWidth=225&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4777&status=done&style=none&taskId=u006c5efd-3614-4f1a-8127-4ae494cd5ae&title=&width=225" alt="image.png"><br />E（·，·）是一个二进制变量，如果<img src="https://cdn.nlark.com/yuque/__latex/267af57eb97a3e28c946702f3f0e6246.svg#card=math&code=x_i%3Dx%27_i&id=g80Xh">，则等于0，否则等于1。一个高质量的对抗性例子应该与良性样本相似，人类读者应该很难区分出其区别。极限攻击属于硬标签攻击，它与模型的参数、梯度或置信度分数无关。攻击者只能查询受害者模型，获得预测标签<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089824738-42310a7c-f7e8-4831-9a24-c1d1eb250170.png#averageHue=%23f4f1ee&clientId=u205d476f-211d-4&from=paste&height=27&id=uc11cb973&originHeight=27&originWidth=88&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2048&status=done&style=none&taskId=u6f44cbcf-b438-43c7-80db-4ffeae02cf8&title=&width=88" alt="image.png">。<br /><strong>所提出的极限攻击算法</strong><br />总体流程图如图2所示。限制攻击遵循两个步骤，即单词的重要性排序和扰动执行。<br /><strong>Word重要性排名</strong><br />给定一个有n个单词X的句子，我们假设所有单词的贡献都是可加性的，并且它们的和与模型的预测呈正相关。如图2所示，我们从一个良性的例子X中随机替换一些单词为‘[MASK]’，生成一些邻域样本<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089566228-f284006a-dad0-449a-ab0a-a45d3845ca78.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=24&id=UnCGN&originHeight=24&originWidth=172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1999&status=done&style=none&taskId=ub8bdf081-f3e5-4d27-bdd6-e3e6747b03e&title=&width=172" alt="image.png">。通常，有更多单词的句子通常需要更多的邻居样本来近似单词的重要性。因此，我们保持邻域样本的数量与令牌的数量保持一致。然后，我们将X提供给受害者模型F，以获得离散的预测标签<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089942190-a156e219-6205-4601-aafc-5d2770c73a24.png#averageHue=%23f7f4f0&clientId=u205d476f-211d-4&from=paste&height=27&id=ub95ec821&originHeight=27&originWidth=167&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2482&status=done&style=none&taskId=ua89e5148-c82b-4453-967c-6af1ebb03e2&title=&width=167" alt="image.png">。随后，我们将拟合一个线性可解释性模型来对这些邻域样本进行分类：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713089958222-c5deaa51-10e0-46d2-90d6-50db78767dd6.png#averageHue=%23faf8f6&clientId=u205d476f-211d-4&from=paste&height=55&id=u90c97d9b&originHeight=55&originWidth=241&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4874&status=done&style=none&taskId=u5c560305-9b76-4ce8-9717-e1fa1851581&title=&width=241" alt="image.png"><br />其中θ是线性模型的参数，I（·，·）是一个二进制变量，如果X中的单词xi，则等于1，否则为0。因此，参数<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090026904-ad91c62b-8bae-451a-a9d5-aa26ddf25c11.png#averageHue=%23fbf8f3&clientId=u205d476f-211d-4&from=paste&height=26&id=u634f4b3b&originHeight=26&originWidth=98&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1920&status=done&style=none&taskId=u63d09a12-0526-478b-b79b-cc80cbf3c6f&title=&width=98" alt="image.png">反映了没有单词xi的变化，并近似于单词的重要性。在附录O中，我们通过实验验证了在微小的查询预算下，线性模型（如LIME）与一些先进的解释方法（如SHAP）或非线性模型（如决策树）具有相同的效果。形状模型或非线性模型也具有较高的计算复杂度。一些先进的解释方法或非线性模型的优势只有在有大量的邻域样本和查询时才会反映出来。<br />详细地说，我们将每个邻域样本Xi‘转换为二进制向量Vi’。如果在Xi‘中去掉了原词，则其在Vi’中对应的向量维数为0，否则为1。因此，Vi‘与Xi’的长度相同，这是良性例子的长度。一个良性的例子X也被转换为V。有时邻域样本不一定是线性可分的，LIME采用高斯核对每个样本的损失进行加权，以收集最接近原始样本的点，这有助于线性拟合。我们根据每个邻域样本与良性样本的距离（Ribeiro，Singh，和Guestrin 2016）给予其权重<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090101587-0e2294ec-0168-4f1f-a631-f628069723f3.png#averageHue=%23f7f2ed&clientId=u205d476f-211d-4&from=paste&height=24&id=ub8890689&originHeight=24&originWidth=73&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1687&status=done&style=none&taskId=uc93e74b6-f18f-4fd3-8225-15167c29388&title=&width=73" alt="image.png">。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090087444-0bdee6a4-8fcb-4bdb-a8f9-7d33bc5a5290.png#averageHue=%23f9f6f3&clientId=u205d476f-211d-4&from=paste&height=32&id=u81a7be0c&originHeight=32&originWidth=265&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3770&status=done&style=none&taskId=u45ae6c57-c641-4a96-a6cf-c6384f0f64d&title=&width=265" alt="image.png"><br />其中，d（.，.）是一个距离函数。我们采用余弦相似度作为距离度量。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090126360-3ae96ce0-daf9-40a1-94f2-385c056216e8.png#averageHue=%23f7f5f3&clientId=u205d476f-211d-4&from=paste&height=59&id=u0edc6481&originHeight=59&originWidth=180&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3380&status=done&style=none&taskId=ub6ecf893-91f6-44fc-92ff-f3a2a8b35df&title=&width=180" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090162382-abfd654c-15fb-4950-8956-3fc0e80c3edf.png#averageHue=%23f4f1ef&clientId=u205d476f-211d-4&from=paste&height=584&id=ub488e8bf&originHeight=584&originWidth=936&originalType=binary&ratio=1&rotation=0&showTitle=false&size=198011&status=done&style=none&taskId=ucdbe0b13-1cb2-4460-a6d1-8bcc602cd47&title=&width=936" alt="image.png"><br />最后，我们计算了最优参数θ∗：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090248704-42c4b2c5-7f6a-42f9-a06b-225b72968998.png#averageHue=%23fbf9f7&clientId=u205d476f-211d-4&from=paste&height=60&id=u56fb5f10&originHeight=60&originWidth=392&originalType=binary&ratio=1&rotation=0&showTitle=false&size=8232&status=done&style=none&taskId=ube492b17-2310-4b9a-9aaf-7ac76c3902c&title=&width=392" alt="image.png"><br />其中Ω(θ)是参数的非零，这是对线性模型复杂性的度量。优化θ后，每个单词xi的重要性等于θi。LIME可以看作是原始样本中模型决策边界的近似值。这些参数可以解释为边际，边际越大，这个词在近似决策边界时的重要性就越大。我们将首先使用NLTK2过滤掉停止词，并计算每个单词的重要性。确保极限攻击产生了高质量的对抗性例子，而不仅仅是消极的例子。我们只采用同义词替换策略，通过在反拟合嵌入空间中选择最前k个最近的同义词，为每个单词xi构造同义词候选集C（xi）（Mrkˇsi‘cetal.2016）。此外，我们在附录一中展示了人类评估的结果和更多定性的对抗性例子。<br /><strong>扰动执行</strong> <br />对抗性例子生成是一个组合优化问题。 基于分数的攻击通过选择引起最大变化的标记进行迭代每次都在模型的 logits 中。 但没有这样的信息在硬标签攻击中。因此，我们只能依赖对抗样本与原始样本之间的相似性用于迭代的样本。 问题是相似度和攻击成功率并不完全线性相关。 作为如表7所示，每次贪婪地选择相似度最低的对抗样本并不能保证最终的攻击成功率是最优的。 我们希望每个采样均匀分布以平衡攻击成功率和语义相似度。对于每个起源词xi，我们将其替换为c∈C（xi）来生成一个对抗示例<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090493904-761cff9e-c1a5-4ea0-b875-1c69645283f1.png#averageHue=%23faf8f5&clientId=u205d476f-211d-4&from=paste&height=23&id=uabb004b0&originHeight=23&originWidth=279&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2621&status=done&style=none&taskId=u54a4893e-92d1-4bdb-aee6-5c4fa9ba869&title=&width=279" alt="image.png">，然后我们计算良性样本X之间的语义相似性通过通用句子编码器（USE）3。我们首先根据相似性对候选对象进行排序，并每次抽样b个对抗性的例子，以进入下一次迭代。详细地说，我们制定了以下采样规则： (1)采样b&#x2F;3个语义相似度最高的对抗性样本。(2)抽样具有语义相似度最低的b&#x2F;3个对抗性样本。(3)随机抽取剩余的敌对性样本中的b&#x2F;3个。附录C和H总结了超参数b的分析和极限攻击算法的分析。</p>
+<p><strong>Experiments：</strong><br />附录D和附件E中列出了对极限攻击的可转移性和对抗性训练的分析。<br /><strong>任务、数据集和模型</strong><br />我们采用了7个常见的数据集，如先生（庞和李2005）、SST-2（Sochere人2013）、AG（张、赵和乐村2015）和雅虎（Yoo等人2020）进行文本分类。SNLI（Bowman等人，2015年）和MNLI（威廉姆斯、Nangia和鲍曼，2018年）的文本含义，其中MNLI包括一个匹配版本（MNLIm）和一个不匹配版本、（MNLImm）。此外，我们还训练了三种神经网络作为受害者模型，包括CNN（Kim，2014年）、LSTM（霍克雷特和施米德胡伯，1997年）和BERT（Devlin等人，2019年）。模型的参数和数据集的详细信息列于附录A中。<br /><strong>基线</strong><br />我们选择以下现有的硬标签攻击算法作为我们的基线：HLBB（Maheshwary、Mahesh wary 和 Pudi 2021）、TextHoaxer（Ye 等人，2022b）、Leap Attack（Ye 等人，2022a）和 TextHacker（Yu 等人，2022）。 此外，我们还收录了一些经典的基于分数的攻击算法，例如TextFooler (TF) (Jin等人。 2020)、PWWS (Ma, Shi, andguan 2020) 和 Bert Attack (Li et al. 2020) 供考，其中获得了额外的攻击的置信度分数并在TextAttack 框架（Morris 等人，2020）。<br /><strong>自动评估指标</strong><br />我们使用四个指标来评估攻击性能：攻击成功率（ASR）、扰动率（Pert）、语义相似度（Sim）和查询数（查询）。具体来说，给定一个数据集<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713090887348-ece0b49a-2c0c-442f-aea3-72c31f77c1de.png#averageHue=%23f6f2ee&clientId=u205d476f-211d-4&from=paste&height=27&id=u543fb0b5&originHeight=27&originWidth=148&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3357&status=done&style=none&taskId=u4d36c8b9-6ca1-4358-9f69-88d5f4e1bad&title=&width=148" alt="image.png">由N个样本<img src="https://cdn.nlark.com/yuque/__latex/7ca2ff984e95d4a9e44fe7498e281020.svg#card=math&code=X_i&id=yePtF">和相应的标签<img src="https://cdn.nlark.com/yuque/__latex/99f45a182fbbb1d1f79bea448076630f.svg#card=math&code=Y_i&id=A3oMc">，攻击成功率对抗攻击方法，生成对抗的例子(X)给定输入X攻击受害者模型F，定义为（王et al. 2021）：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091014421-76e35b59-42c3-44b8-ad2b-f1f6642228b2.png#averageHue=%23f8f7f5&clientId=u205d476f-211d-4&from=paste&height=64&id=uf805e27d&originHeight=64&originWidth=278&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7216&status=done&style=none&taskId=u4c306b06-9552-4437-96d2-cde0b5f8a0e&title=&width=278" alt="image.png"><br />扰动率是替换数与原始token数的比例，这已在Eq 2中定义。语义相似度是通过通用句子编码器（USE）来度量的。大多数论文（马赫什瓦里、马赫什瓦里和普迪，2021年；Ye等人，2022年a）已经采用了USE。为了保持一致性和促进可比性，我们也使用了USE。查询号是在攻击期间的模型查询数。模型的鲁棒性与攻击成功率成反比，而扰动率和语义相似性共同揭示了对抗性例子的质量。查询号显示了攻击的效率。<br /><strong>实施细节</strong><br />我们设置核宽度 σ &#x3D; 25，邻域样本的数量等于良性样本的数量令牌，光束大小 b &#x3D; 10。为了公平比较，所有基线遵循相同的设置：选择同义词来自反向安装的嵌入空间和每个嵌入空间的数量候选集 k &#x3D; 50，同样采样 1000 个文本攻击的基线。 结果是五次运行的平均值不同的种子（1234、2234、3234、4234和5234）来消除随机性。 为了提高对抗质量例如，如果每个的扰动率都相同，则攻击成功对抗性例子不到10%。 我们设置一个小查询硬标签攻击的预算为 100，对应于现实世界的设置。 （例如，HuggingFace 免费推理API 通常将调用次数限制为每分钟 200 次。）<br /><strong>实验结果</strong><br /><strong>攻击性能：</strong>表1和表2显示，Lime攻击在文本分类和文本隐含任务上优于现有的硬标签攻击，在SST-2、AG和MNLI等数据集上获得了更高的攻击成功率和更低的扰动率。与现有的硬标签攻击需要许多查询来优化扰动不同，Lime攻击采用了一种本地可解释的方法来计算单词的重要性排序，并首先攻击关键词。这种方法可以生成具有高攻击成功率的对抗性示例，即使是在很小的查询预算下。附录G包括一个t检验和与其他方法相比的限制攻击的成功率的平均值和方差。在附录K和L中，我们列出了Lime攻击和几种基于分数的攻击之间的语义相似性和比较结果。<br /><strong>查询预算：</strong>如图3所示，在不同的查询预算下，LimeAttatack仍然保持着稳定的攻击成功率和更平滑的攻击曲线，这意味着无论查询预算是高或低，Lime攻击通常都具有稳定和优秀的攻击性能。扰动率的变化趋势见附录n，通过比较低查询和高查询预算下的攻击性能，可以提供更全面的评价。然而，不考虑查询预算的攻击是一种比较理想的情况，它显示了攻击算法的上限。大量的查询是昂贵的，我们认为在低查询预算下的攻击性能更实用。我们还在附录N中列出了在查询预算为2000下的不同攻击的一些攻击成功率和扰动率。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091435662-5ead375d-6cda-47d8-8c0d-3777862ca7f3.png#averageHue=%23f5f2f1&clientId=u205d476f-211d-4&from=paste&height=322&id=u397ba52f&originHeight=322&originWidth=441&originalType=binary&ratio=1&rotation=0&showTitle=false&size=51809&status=done&style=none&taskId=ue8fc8449-47e3-47e3-8b4e-e9883ac505a&title=&width=441" alt="image.png"><br /><strong>对手的品质</strong>：高质量的对抗样本应该既流畅又具有上下文感知能力，同时也与良性样本相似以逃避人类检测。 我们利用语言工具4并用于检测语法错误并测量语义相似性。 如表3所示，LimeAttack 的扰动率和语法性最低错误，虽然其语义相似度低于HLBB，TextHoaxer 和 LeapAttack。 因为这些方法需要在攻击过程中考虑相似性，因此 LimeAttack与其他方法相比，相似度较低。 考虑到所有指标中，LimeAttack 仍然占据主导地位。 为了直观地比较对抗性例子的质量，一些定性的附录一提供了示例。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091646301-764732dc-2c27-4257-aaf1-0e9cc6a0250a.png#averageHue=%23f6f4f2&clientId=u205d476f-211d-4&from=paste&height=457&id=ub240c6aa&originHeight=457&originWidth=926&originalType=binary&ratio=1&rotation=0&showTitle=false&size=109203&status=done&style=none&taskId=u2d47fec8-4347-4a31-8835-9c9732a57b2&title=&width=926" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091662606-c6b96a56-dcc3-4d81-9bcf-3da7ef85f3e4.png#averageHue=%23f3f1ef&clientId=u205d476f-211d-4&from=paste&height=203&id=ua8f425aa&originHeight=203&originWidth=921&originalType=binary&ratio=1&rotation=0&showTitle=false&size=37930&status=done&style=none&taskId=u298c91bb-5ec7-49d6-9924-4423080233c&title=&width=921" alt="image.png"><br /><strong>大型语言模型的评估</strong>：大语言模型（LLM），也称为基础模型（Bom masani et al. 2021），在以下方面取得了令人印象深刻的表现各种自然语言处理任务。 然而，它们对对抗性例子的鲁棒性仍不清楚（Wang 等人，2023）。 为了评估 LimeAttack 对法学硕士的有效性，我们选择了一些流行的型号，例如DeBERTa-L（Kojima等人。 2022）、BART-L（Lewis 等人，2019）、Flan-T5（Raffel<br />等人。 2020)、GPT-3 (text-davinci-003) 和 ChatGPT (gpt-3.5-turbo）（Brown 等人，2020）。 由于API调用有限，我们从 MR 数据集中抽取 100 个文本，并攻击这些模型的零样本分类任务。 如表4所示，LimeAttack 成功攻击了大多数 LLM查询预算。 尽管这些模型具有很高的准确度零样本任务，它们对对抗性例子的鲁棒性仍然需要改进。 ChatGPT 和 T5-L 更稳健到对抗性的例子。 受害者模型的稳健性与原点精度有关。 原点精度越高，受害者模型防御对抗性的能力越强例子。 其他硬标签攻击的进一步分析和实验细节在附录 F 中讨论。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091808204-eb27f06c-02a7-4cf5-8fb6-e9f3dc093fc6.png#averageHue=%23f4f1ee&clientId=u205d476f-211d-4&from=paste&height=232&id=ue3d4842e&originHeight=232&originWidth=438&originalType=binary&ratio=1&rotation=0&showTitle=false&size=42045&status=done&style=none&taskId=u5e6b5a6c-2642-4fa4-947f-58f54f56f9d&title=&width=438" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713091828619-ca845d9a-d512-4d3a-8cbd-728f53a43111.png#averageHue=%23f3f0ed&clientId=u205d476f-211d-4&from=paste&height=239&id=ue9662c52&originHeight=239&originWidth=454&originalType=binary&ratio=1&rotation=0&showTitle=false&size=47878&status=done&style=none&taskId=u65e74b4c-485f-4a99-a2a7-7ffa0924bb6&title=&width=454" alt="image.png"><br /><strong>对防御方法的攻击性能</strong> <strong>：</strong>评估LimeAttack 对防御方法的有效性，我们使用 A2T（Yoo 和 Qi 2021）和 ASCC（Dong 等人，2021）增强BERT对SNLI的防御能力，并在此基础上进行了攻击实验。 如表5所示，LimeAttack仍然有一定的攻击效果和结果这些防御方法的其他基线。 更多攻击性能防御方法列于附录M。<br /><strong>消融研究</strong><br /><strong>单词重要性排名的影响</strong>： 为了验证单词重要性排序的有效性，我们删除了单词重要性排名策略，而是随机选择单词进行扰动以评估其有效性。 表6表明在没有单词重要性排名的情况下，攻击MR 和 SST 的成功率分别下降 9% 和 6%分别是2个数据集。 此外，对抗性例子随机选择产生的扰动率更高并需要更多查询。 这表明了重要性引导 LimeAttack 聚焦的单词重要性排名关键词，以更低的成本实现更有效的攻击扰动率。<br /><strong>抽样规则的效果：</strong>为了验证LimeAttack抽样规则的有效性，我们将用三种常见的抽样规则之一替换该策略： (1)选择b个语义相似度最高的对抗性例子，(2)选择b个语义相似度最低的对抗性例子，或(3)随机选择b个对抗性例子。表7的结果表明，Lime攻击具有较高的攻击成功率和较低的扰动率，优于其他采样规则。此外，它还具有类似的（第二高的）语义相似度和查询的数量。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092061432-882bf24a-ce46-4896-998d-39180f92b8d6.png#averageHue=%23f3f1ee&clientId=u205d476f-211d-4&from=paste&height=245&id=u64e506cb&originHeight=245&originWidth=436&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36528&status=done&style=none&taskId=ucbb7b4ad-4705-474e-ae06-ab3d97a3cee&title=&width=436" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092116737-7ecb9243-d233-411d-a08b-0e126a018fd3.png#averageHue=%23f1eeeb&clientId=u205d476f-211d-4&from=paste&height=188&id=uad4f31ca&originHeight=188&originWidth=434&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36376&status=done&style=none&taskId=uaa889d5d-52d4-441f-8624-203e2d99f0d&title=&width=434" alt="image.png"><br /><strong>人工评价</strong><br />我们选择了 200 个 BERT-MR 对抗样本。 每个对抗性例子都由两名人类评委进行评估语义相似度、流畅度和预测准确性。 这整个人类评价与TextFooler一致（Jin等人。 2020）。 具体来说，我们要求人类评委打出 5 分Likart 量表（1-5 对应于非常不流利&#x2F;相似，不流畅&#x2F;相似、不确定、流畅&#x2F;相似、非常流畅&#x2F;相似分别）评价相似度和流畅度对抗性样本和良性样本。 结果是如表8所示，语义相似度为4.5，即对抗样本与原始样本相似。 这里的预测准确度是让人类能够预测出什么这句话的标签是（例如它是肯定的还是否定的情绪分析）。 76.7% 表示大多数是敌对的示例与原始样本具有相同的属性人类的视角却错误的受害者模型。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092190675-cb5217ff-9c97-46da-82f8-db28f57b260a.png#averageHue=%23f4f2ef&clientId=u205d476f-211d-4&from=paste&height=197&id=u465ca341&originHeight=197&originWidth=440&originalType=binary&ratio=1&rotation=0&showTitle=false&size=29130&status=done&style=none&taskId=u303469a4-60da-418b-92e9-7157ee63aa0&title=&width=440" alt="image.png"></p>
+<p><strong>Conclusion：</strong><br />在本工作中，我们总结了以往基于分数的攻击和硬标签攻击，并提出了一种新的硬标签攻击算法，称为极限攻击。极限攻击采用一种局部可解释的方法来近似计算单词的重要性排序，然后利用波束搜索，以微小的查询预算生成高质量的对抗性示例。实验表明，极限攻击的攻击成功率高于其他硬标签攻击的攻击成功率。此外，我们还评估了极限攻击在大型语言模型和一些防御方法上的攻击性能。极限攻击所制作的对抗性实例具有高质量、高可转移性，提高了受害者模型在对抗性训练中的鲁棒性。极限攻击已经验证了在硬标签中的内外攻击路径的有效性。然后，许多优秀的基于分数的攻击可能会提供更深入的硬标签攻击。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713092296864-9ec93680-63f3-4d96-ae06-563e05772e54.png#averageHue=%23f1eeec&clientId=u205d476f-211d-4&from=paste&height=177&id=u584b228d&originHeight=177&originWidth=863&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36445&status=done&style=none&taskId=u2d9bd364-082b-4af1-ae11-75568da0b57&title=&width=863" alt="image.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/04/21/hqa-attack-toward-high-quality-black-box-hard-label-adversarial-attack-on-text/" rel="next" title="HQA-Attack_ Toward High Quality Black-Box Hard-Label Adversarial Attack on Text">
+      HQA-Attack_ Toward High Quality Black-Box Hard-Label Adversarial Attack on Text <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu panjia</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Qiu panjia</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

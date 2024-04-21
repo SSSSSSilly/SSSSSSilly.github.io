@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ssssssilly.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Summary:Black-box hard-label adversarial attack on text is a practical and challenging task, as the text data space is inherently discrete and non-differentiable, and only the predicted label is acc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HQA-Attack_ Toward High Quality Black-Box Hard-Label Adversarial Attack on Text">
+<meta property="og:url" content="https://ssssssilly.github.io/2024/04/21/hqa-attack-toward-high-quality-black-box-hard-label-adversarial-attack-on-text/index.html">
+<meta property="og:site_name" content="Silly">
+<meta property="og:description" content="Summary:Black-box hard-label adversarial attack on text is a practical and challenging task, as the text data space is inherently discrete and non-differentiable, and only the predicted label is acc">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713077959296-34022000-1cc1-4b5e-94bd-3432d3ab406b.png#averageHue=%23f6f1ea&clientId=u3dc7df86-cfe5-4&from=paste&height=356&id=u1a151193&originHeight=356&originWidth=369&originalType=binary&ratio=1&rotation=0&showTitle=false&size=64855&status=done&style=none&taskId=uf43032d3-8e96-49d1-8d18-3b8d238cfe2&title=&width=369">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713082784676-4ef96ee8-1fe1-406a-91df-432e3cb307ca.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=24&id=uce0e5c0b&originHeight=24&originWidth=152&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1939&status=done&style=none&taskId=ud5ac983b-6e88-4532-89c1-6683b59d733&title=&width=152">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/bf98c0ddcbe9c1e535f767c78c3aa813.svg#card=math&code=y&id=UKSH5">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=ukk5k">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/2443fbcfeb7e85e1d62b6f5e4f27207e.svg#card=math&code=i&id=i9fX0">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/df378375e7693bdcf9535661c023c02e.svg#card=math&code=n&id=bE0ml">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=Ioh45">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=u27c6b4e4&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=vF61T">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/f68a44577aeba338f812a2315c0c5302.svg#card=math&code=S%28w_i%29&id=WBxqG">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=lPQcm">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=bYx5e">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/18f3c2855f0e85a1ac2257f64d917144.svg#card=math&code=f&id=QM0bb">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083207480-30cd11e0-1729-4933-a5dc-07527796720b.png#averageHue=%23faf7f4&clientId=u718981f7-f8e3-4&from=paste&height=29&id=ua217848e&originHeight=29&originWidth=147&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2314&status=done&style=none&taskId=ue8cd070c-cf4b-4237-beb3-15882afeb1d&title=&width=147">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083228482-3b5d4af7-78b9-4f00-baf5-e3e491e525fe.png#averageHue=%23fcfaf7&clientId=u718981f7-f8e3-4&from=paste&height=41&id=u92645bbf&originHeight=41&originWidth=355&originalType=binary&ratio=1&rotation=0&showTitle=false&size=5336&status=done&style=none&taskId=u394f268a-0681-4074-9665-4a6f4cc47a2&title=&width=355">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d70bff217a1d9c948dd4301cf9ba2637.svg#card=math&code=Sim%28x%2C%20x%27%29&id=r95wr">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=dUjuU">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/a9cc33aa0d01f5a6ed94d209c0278ac3.svg#card=math&code=x%27&id=w8KFr">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083351935-fbc5b44f-ce48-495b-87ad-71f11b19b987.png#averageHue=%23f6f3f0&clientId=u718981f7-f8e3-4&from=paste&height=269&id=ud4e945e1&originHeight=269&originWidth=472&originalType=binary&ratio=1&rotation=0&showTitle=false&size=48617&status=done&style=none&taskId=u9f00e199-6f70-4f2d-a98e-ad022cc0d7e&title=&width=472">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=xGyLE">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=qdiTd">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=PLe9J">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/f68a44577aeba338f812a2315c0c5302.svg#card=math&code=S%28w_i%29&id=PucNY">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=k31XQ">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/a9cc33aa0d01f5a6ed94d209c0278ac3.svg#card=math&code=x%27&id=mMpxz">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/cead1760d9d5723460c4b8d4028f113a.svg#card=math&code=t&id=j9N4R">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=Hkwx7">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=DfBD8">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8f04bdf7645e34197a84fb043aaf0198.svg#card=math&code=1%5Cle%20t%20%5Cle%20T&id=BsCfI">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/1553dae3cc5c15cddb4f5b5a367b0aba.svg#card=math&code=T&id=QKFST">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713082784676-4ef96ee8-1fe1-406a-91df-432e3cb307ca.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=24&id=PmmvO&originHeight=24&originWidth=152&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1939&status=done&style=none&taskId=ud5ac983b-6e88-4532-89c1-6683b59d733&title=&width=152">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=dBV1u&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=oklYO">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6d65ccc7176953587d009efc17010568.svg#card=math&code=w_%2A&id=xFkgP">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713084238064-7b6ab33f-f991-4aa6-a00e-7f3df9d46dad.png#averageHue=%23fbf8f4&clientId=u718981f7-f8e3-4&from=paste&height=34&id=u61df3641&originHeight=34&originWidth=362&originalType=binary&ratio=1&rotation=0&showTitle=false&size=6175&status=done&style=none&taskId=u32cf9d82-8aaf-431f-a2fb-c482f19ef94&title=&width=362">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/85fac01fbc81484467b1ec4fe2dcba22.svg#card=math&code=Sim%28x%2Cx%27_t%28w_i%29%29&id=zikY8">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=cJU1I">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/0c2a385221c9e9e36617711539f82727.svg#card=math&code=x%27_t%28w_i%29&id=NpzQM">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/0c2a385221c9e9e36617711539f82727.svg#card=math&code=x%27_t%28w_i%29&id=Stcf9">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=ie0jq">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=pYjxI">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/5246d05f45726eeea81453b5f3c6b19c.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_i%29%29&id=GWWAY">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713084600125-f4de43da-7188-4c75-b679-7ac8905fc1fd.png#averageHue=%23fbf8f5&clientId=u718981f7-f8e3-4&from=paste&height=48&id=u86215462&originHeight=48&originWidth=333&originalType=binary&ratio=1&rotation=0&showTitle=false&size=5998&status=done&style=none&taskId=ue4ba01ba-6769-4fcc-91f6-f85e5eec75b&title=&width=333">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/18f3c2855f0e85a1ac2257f64d917144.svg#card=math&code=f&id=BwbZw">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/2c35e0fa4a53bb79e2c88163f89000ca.svg#card=math&code=f%28x%29%20%5Cneq%20f%28x%27_t%28w_i%29%29&id=JPy91">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/a42a4fc28b384cc408de066beed57485.svg#card=math&code=C&id=kvIpe">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/27b34dee715897c715cd461bc2642afc.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_%2A%29%29%20%3D%201&id=eSuSk">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e7b9a4c85936635c359399ef7fe7436d.svg#card=math&code=x%27_t%28w_%2A%29&id=BrBZR">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=kb0iw">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6d65ccc7176953587d009efc17010568.svg#card=math&code=w_%2A&id=hDVAZ">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/05b4ce6ecc0c57dbd686c9d849f9f6ae.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_%2A%29%29%20%3D%200&id=iBSRV">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e7b9a4c85936635c359399ef7fe7436d.svg#card=math&code=x%27_t%28w_%2A%29&id=IYyGY">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=c7a4I">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=ITDyc">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=fodY0">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=XWdR0">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=oOC9A">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085196906-fdd152fa-09b5-44cb-975d-9441dbc7b921.png#averageHue=%23faf8f4&clientId=u718981f7-f8e3-4&from=paste&height=29&id=u4a69ace2&originHeight=29&originWidth=183&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3178&status=done&style=none&taskId=uc00696ff-c57b-4fb6-98ee-2bb68edd29c&title=&width=183">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/2ad38a23b40c4d62ec987290b8c64cac.svg#card=math&code=v_%7Bw_i%7D&id=yRdbo">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/1952fef64bee3dba944df5f93f5ae3e9.svg#card=math&code=v_%7Bw%27_i%7D&id=Floqq">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=V4pIE">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=PXchi">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/dc4ff2f7f8c631e916f353e0efda1225.svg#card=math&code=cos%28.%2C.%29&id=enxQR">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=zijPK">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=PGUfS">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/39c69fbad0041c1d5caa9acf313cb0e6.svg#card=math&code=p_i&id=aQoQX">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085375643-e286e7a4-0781-4935-96ee-6c55b2e707fa.png#averageHue=%23f6f4f3&clientId=u718981f7-f8e3-4&from=paste&height=50&id=ud57bceef&originHeight=50&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3781&status=done&style=none&taskId=ub40b86d5-ada4-4ab5-bbaf-e52245cd490&title=&width=170">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/4760e2f007e23d820825ba241c47ce3b.svg#card=math&code=m&id=UoRW8">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=DnSZy">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=ouwhQ">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/23ba71a1373c0f73e4f52920cc774716.svg#card=math&code=x%27t&id=MCqm8">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=yM0DT">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=Jrbdq&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=wV68y">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/72cb3a229067770aeb6caa625a65a1a1.svg#card=math&code=r&id=ijaLN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085627422-378b7547-145c-4f0e-bb8e-89e782c30fd4.png#averageHue=%23faf6f2&clientId=u718981f7-f8e3-4&from=paste&height=29&id=u521286dd&originHeight=29&originWidth=189&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2972&status=done&style=none&taskId=u682a5131-2a5c-4add-97a2-ece2738ea5f&title=&width=189">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/79b733ad92335d362b8400a54193e034.svg#card=math&code=w%27_i%0A&id=AclK3">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/ae4caee5e098d917646e8f24d8d4d1be.svg#card=math&code=x%27_i&id=uZ0ac">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=Ba8kQ">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085742668-df5508cb-c2ea-4df3-b8f6-04993240adb8.png#averageHue=%23fcfaf7&clientId=u718981f7-f8e3-4&from=paste&height=47&id=ue20362e7&originHeight=47&originWidth=391&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7288&status=done&style=none&taskId=ued3cb446-c34f-46a2-8d17-86a4ae32303&title=&width=391">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085871195-cd9861ef-613f-4dd6-abc0-ffb9f01effcb.png#averageHue=%23fcf9f5&clientId=u718981f7-f8e3-4&from=paste&height=38&id=u5d038b85&originHeight=38&originWidth=66&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2145&status=done&style=none&taskId=ueb664c0a-9a32-4a68-a017-c0e4483be21&title=&width=66">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085888921-1108d2bc-8a83-43ab-a7cd-8fee685624b8.png#averageHue=%23faf7f3&clientId=u718981f7-f8e3-4&from=paste&height=29&id=uf859f71b&originHeight=29&originWidth=74&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1891&status=done&style=none&taskId=udbde87d0-0898-480a-bf0f-028705df4d5&title=&width=74">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=FESIW">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=MCz2F">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=yACfh">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=ngt8P">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=Mp1B2">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8be6885fe1c17117a386d48ae4444ef6.svg#card=math&code=S%28%5Coverline%20w_i%29&id=OtcMG">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/df976ff7fcf17d60490267d18a1e3996.svg#card=math&code=k&id=IU5l0">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086035746-4c1a15b2-c07c-4399-b2d3-89ed1bf98edb.png#averageHue=%23f8f4f0&clientId=u718981f7-f8e3-4&from=paste&height=27&id=ufafb7796&originHeight=27&originWidth=189&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2957&status=done&style=none&taskId=u5e653393-bfcf-44e2-8457-8d3af4b9e2a&title=&width=189">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086144939-67e84e73-c6e5-4c16-ad8e-27506b338e2e.png#averageHue=%23f9f5ef&clientId=u718981f7-f8e3-4&from=paste&height=26&id=uf630f614&originHeight=26&originWidth=286&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4079&status=done&style=none&taskId=ubcb0aefb-4341-4425-ae7d-58982479dbe&title=&width=286">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086185942-c015462f-e565-452f-ad80-5ca329893684.png#averageHue=%23faf6f0&clientId=u718981f7-f8e3-4&from=paste&height=30&id=ua15148b3&originHeight=30&originWidth=65&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2115&status=done&style=none&taskId=u24c35c68-b0ca-4972-9f9f-4ee15a95e39&title=&width=65">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=pUbbE">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/ae4caee5e098d917646e8f24d8d4d1be.svg#card=math&code=x%27_i&id=I7eck">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086271313-7a939e4f-1147-4e3c-b4ef-b2b1712e8e27.png#averageHue=%23e1c095&clientId=u718981f7-f8e3-4&from=paste&height=26&id=ue6a361b8&originHeight=26&originWidth=29&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1082&status=done&style=none&taskId=uc29fe2bf-dd39-4d54-88a8-8e4ddea45cf&title=&width=29">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086287872-ef50dad4-2f1a-4f4e-b3fd-51036466a55f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=25&id=u22fdf0e1&originHeight=25&originWidth=179&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2609&status=done&style=none&taskId=u5cc9d886-ad1a-4bc4-9ce9-95d64467e34&title=&width=179">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086302311-a0f632ba-06cf-40b9-8a96-013687c5f4da.png#averageHue=%23f9f5f0&clientId=u718981f7-f8e3-4&from=paste&height=26&id=u8c683dea&originHeight=26&originWidth=185&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3981&status=done&style=none&taskId=ua311e183-119f-4654-97cc-148669ad727&title=&width=185">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086317625-ffb855e0-47c4-4ded-b2b8-916907d0f1f7.png#averageHue=%23f9f5ee&clientId=u718981f7-f8e3-4&from=paste&height=28&id=u4f3cc588&originHeight=28&originWidth=63&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2139&status=done&style=none&taskId=u80cd43e8-618f-4b0f-8a1e-66390ed4adf&title=&width=63">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086327459-63f988b7-2cdd-49c0-89d0-d71bbc140a12.png#averageHue=%23f9f5ee&clientId=u718981f7-f8e3-4&from=paste&height=28&id=uab5415c2&originHeight=28&originWidth=63&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2139&status=done&style=none&taskId=uad83d0fe-230b-40af-a1e8-4886c602099&title=&width=63">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086346941-afdb7bd4-a383-4dc7-bfae-fbe969bb61fc.png#averageHue=%23f7f2ed&clientId=u718981f7-f8e3-4&from=paste&height=22&id=udeb2babd&originHeight=22&originWidth=161&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3125&status=done&style=none&taskId=u919b5c9a-e16e-41e2-80fa-88889c076d6&title=&width=161">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086444411-685aedc9-1e2b-4a4e-87b4-0de65b75339f.png#averageHue=%23faf8f5&clientId=u718981f7-f8e3-4&from=paste&height=26&id=ue692038e&originHeight=26&originWidth=101&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1695&status=done&style=none&taskId=ua0f22fc2-0ef7-4f99-8f02-704cfff5737&title=&width=101">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/89111f3d3fc401be99edcd8a8211022c.svg#card=math&code=v_%7B%5Coverline%20w_i%7D&id=ZNr8e">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086499432-aab6e032-3721-4f44-b1aa-cc9f86712d88.png#averageHue=%23f9f5f2&clientId=u718981f7-f8e3-4&from=paste&height=24&id=u0e949a14&originHeight=24&originWidth=93&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1390&status=done&style=none&taskId=u6d8791bc-0849-490d-8a13-0dd07ff44e2&title=&width=93">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086511617-fa697ee8-fa7d-413d-8b55-6b06abefb44d.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=23&id=u1c2923a7&originHeight=23&originWidth=99&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1668&status=done&style=none&taskId=uda03d6ab-58df-4daf-8b90-2f6c1fffec2&title=&width=99">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086539711-b172419b-2560-4870-98e1-75c4ccb9b924.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=25&id=u6640b418&originHeight=25&originWidth=89&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1379&status=done&style=none&taskId=u55beaf7b-4477-4a83-a1cc-127ae650051&title=&width=89">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086555522-0fb36885-c2e2-4fc2-ad07-9d825d731c77.png#averageHue=%23faf9f7&clientId=u718981f7-f8e3-4&from=paste&height=58&id=u0338dd03&originHeight=58&originWidth=196&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4188&status=done&style=none&taskId=ud60cd329-264e-42df-bcc4-53585389e16&title=&width=196">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/acdcbdeb2eccdf3e6705b176a0b9730d.svg#card=math&code=%5Calpha%20_j&id=IBbTB">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086653403-40d86847-545d-4b06-9e95-21912238b5ab.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=24&id=u43b07e2d&originHeight=24&originWidth=95&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1524&status=done&style=none&taskId=u0f1b07f9-9587-4598-9bbc-6cd027fe44a&title=&width=95">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086664492-769c68ab-daea-4d98-8dda-44d212a24603.png#averageHue=%23f9f7f4&clientId=u718981f7-f8e3-4&from=paste&height=32&id=u507386b9&originHeight=32&originWidth=248&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3839&status=done&style=none&taskId=u6d161348-aa66-4c9e-b474-0f15ebccb05&title=&width=248">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/986f2182bf3b8e740e95a01577f3617d.svg#card=math&code=S%EF%BC%88w_i%EF%BC%89&id=NZMwq">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086818343-8eb2e510-2ce1-4c17-8e92-54cf87eec062.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u63a0beed&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=ufdc32f86-b620-44b5-b181-db43f3d8d37&title=&width=22">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086823787-a9e677a3-621c-4bc1-b2da-a9f7671e1156.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u5383e296&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=u6b46ea0e-5460-4599-b829-70dfe8261ce&title=&width=22">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086847024-b6ebf592-cd18-4107-b7af-5f3409aa6d44.png#averageHue=%23f7f3ef&clientId=u718981f7-f8e3-4&from=paste&height=19&id=u01a8c6bb&originHeight=19&originWidth=79&originalType=binary&ratio=1&rotation=0&showTitle=false&size=969&status=done&style=none&taskId=u4461398b-0b38-48be-821e-0c07f57d3c7&title=&width=79">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086859446-9d9ec35e-474c-4e81-8add-fcd5bc98ec06.png#averageHue=%23e2c398&clientId=u718981f7-f8e3-4&from=paste&height=20&id=uabb2714c&originHeight=20&originWidth=55&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1637&status=done&style=none&taskId=u3dce88d3-e94b-4d5e-93c4-cd5f5f81f76&title=&width=55">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086869455-c7bd3c64-1a55-47dc-8090-24284ceb39a9.png#averageHue=%23e2c398&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u2719a6cc&originHeight=20&originWidth=55&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1637&status=done&style=none&taskId=uc2eecdeb-9db7-46cd-929b-4b53ac83540&title=&width=55">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=Wj6sK">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=mt7Yd">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086818343-8eb2e510-2ce1-4c17-8e92-54cf87eec062.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=Fasl8&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=ufdc32f86-b620-44b5-b181-db43f3d8d37&title=&width=22">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=tGsaF">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087533990-bfc9b734-db35-4881-993f-64bf185f072d.png#averageHue=%23f4f1ee&clientId=ub1881779-a13d-4&from=paste&height=565&id=u7b4d3390&originHeight=565&originWidth=720&originalType=binary&ratio=1&rotation=0&showTitle=false&size=130517&status=done&style=none&taskId=uebb0e672-8fda-4448-b1aa-c781872057e&title=&width=720">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087558778-539bface-3508-4495-896a-7e96bbbb9ad7.png#averageHue=%23f3f0ed&clientId=ub1881779-a13d-4&from=paste&height=198&id=u6a30049f&originHeight=198&originWidth=719&originalType=binary&ratio=1&rotation=0&showTitle=false&size=41888&status=done&style=none&taskId=u4cd09154-2ca7-4733-9e57-89543556a26&title=&width=719">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087694649-21cf86ed-f278-4a14-9373-05e568805a35.png#averageHue=%23efebe7&clientId=ub1881779-a13d-4&from=paste&height=165&id=uaff4ac91&originHeight=165&originWidth=434&originalType=binary&ratio=1&rotation=0&showTitle=false&size=27860&status=done&style=none&taskId=uc9a4b198-457f-4fc5-a830-fde9e1ec503&title=&width=434">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087766163-f963b53e-102f-4a52-aa6a-84206c507339.png#averageHue=%23f1efee&clientId=ub1881779-a13d-4&from=paste&height=342&id=u6b7847f7&originHeight=342&originWidth=725&originalType=binary&ratio=1&rotation=0&showTitle=false&size=130842&status=done&style=none&taskId=uaba52fc2-3b54-4d97-9535-7ca41e5b034&title=&width=725">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087785313-de7f568d-e1b0-410b-b84f-2582f52f3468.png#averageHue=%23f2f0ef&clientId=ub1881779-a13d-4&from=paste&height=218&id=uf6c49ff9&originHeight=218&originWidth=715&originalType=binary&ratio=1&rotation=0&showTitle=false&size=77050&status=done&style=none&taskId=u0699071c-bef0-4958-b871-0ae3237618a&title=&width=715">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087794972-8a4de1a7-514b-4479-b4c4-ee8f0b7d670a.png#averageHue=%23f2efed&clientId=ub1881779-a13d-4&from=paste&height=122&id=ueb36c271&originHeight=122&originWidth=503&originalType=binary&ratio=1&rotation=0&showTitle=false&size=17976&status=done&style=none&taskId=ub4729a0e-7c22-46cf-a31d-2492b1c3344&title=&width=503">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087973236-9f069984-f76f-4727-bf04-f294799c2344.png#averageHue=%23f2efec&clientId=ub1881779-a13d-4&from=paste&height=185&id=u05c1eee8&originHeight=185&originWidth=706&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36065&status=done&style=none&taskId=ua21d26e1-7513-4112-b6a1-0e7b54d9d0f&title=&width=706">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087997090-ac7e7766-376b-4ce7-8a3b-9933b85e214b.png#averageHue=%23f2efec&clientId=ub1881779-a13d-4&from=paste&height=198&id=u1d0d043a&originHeight=198&originWidth=665&originalType=binary&ratio=1&rotation=0&showTitle=false&size=44202&status=done&style=none&taskId=udf8b206b-fe57-4794-8418-03d5384f110&title=&width=665">
+<meta property="article:published_time" content="2024-04-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-04-21T13:38:48.013Z">
+<meta property="article:author" content="Qiu panjia">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713077959296-34022000-1cc1-4b5e-94bd-3432d3ab406b.png#averageHue=%23f6f1ea&clientId=u3dc7df86-cfe5-4&from=paste&height=356&id=u1a151193&originHeight=356&originWidth=369&originalType=binary&ratio=1&rotation=0&showTitle=false&size=64855&status=done&style=none&taskId=uf43032d3-8e96-49d1-8d18-3b8d238cfe2&title=&width=369">
+
+<link rel="canonical" href="https://ssssssilly.github.io/2024/04/21/hqa-attack-toward-high-quality-black-box-hard-label-adversarial-attack-on-text/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>HQA-Attack_ Toward High Quality Black-Box Hard-Label Adversarial Attack on Text | Silly</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Silly</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://ssssssilly.github.io/2024/04/21/hqa-attack-toward-high-quality-black-box-hard-label-adversarial-attack-on-text/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Qiu panjia">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silly">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HQA-Attack_ Toward High Quality Black-Box Hard-Label Adversarial Attack on Text
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-21 00:00:00 / Modified: 21:38:48" itemprop="dateCreated datePublished" datetime="2024-04-21T00:00:00+08:00">2024-04-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <span id="more"></span>
+
+<p><strong>Summary:</strong><br />Black-box hard-label adversarial attack on text is a practical and challenging task, as the text data space is inherently discrete and non-differentiable, and only the predicted label is accessible. Research on this problem is still in the embryonic stage and only a few methods are available. Nevertheless, existing methods rely on the complex heuristic algorithm or unreliable gradient estimation strategy, which probably fall into the local optimum and inevitably consume numerous queries, thus are difficult to craft satisfactory adversarial examples with high semantic similarity and low perturbation rate in a limited query budget. To alleviate above issues, we propose a simple yet effective framework to generate high quality textual adversarial examples under the black-box hard-label attack scenarios, named HQA-Attack. Specifically, after initializing an adversarial example randomly, HQA-attack first constantly substitutes original words back as many as possible, thus shrinking the perturbation rate. Then it leverages the synonym set of the remaining changed words to further optimize the adversarial example with the direction which can improve the semantic similarity and satisfy the adversarial condition simultaneously. In addition, during the optimizing procedure, it searches a transition synonym word for each changed word, thus avoiding traversing the whole synonym set and reducing the query number to some extent. Extensive experimental results on five text classification datasets, three natural language inference datasets and two real-world APIs have shown that the proposed HQA-Attack method outperforms other strong baselines significantly.</p>
+<p><strong>Background：</strong><br />      深度神经网络（DNN）已经取得了巨大的成功，并且在以下领域非常受欢迎：各个领域，例如计算机视觉，自然语言处理，机器人技术等等。 尽管 DNN 模型取得了令人鼓舞的性能，但仍存在一些问题对其鲁棒性的担忧，因为有证据表明，即使是对输入的轻微扰动数据可以欺骗这些模型，使其产生错误的预测，这些令人不安的示例被命名为对抗性示例。 调查对抗性背后的生成原理例子似乎是提高神经网络鲁棒性的一种有前途的方法，这激励了关于对抗性攻击的研究。 大多数现有的对抗性攻击方法都集中在计算机上愿景并已得到充分探索。 然而，对文本数据的对抗性攻击是仍然具有挑战性，因为不仅文本数据空间本质上是离散且不可微的，而且另外稍微改变一下单词也可能会影响语法的流畅性和语义的一致性严重地。<br />基于受害者模型的可访问性级别，现有的文本对抗攻击方法可以被归类为白盒攻击和黑盒攻击。 对于白盒攻击时，假设攻击者拥有有关受害者模型的完整信息，包括训练数据、模型架构和参数。 因此，很容易将这种类型的攻击表述为优化问题并利用梯度信息生成对抗性示例。 然而，由于大多数模型开发者不可能公开所有的模型和数据信息，白盒攻击似乎过于理想化，在现实应用中无法很好地发挥作用。 对于黑匣子攻击时，假设攻击者只能访问预测结果，例如置信度分数或预测标签，这看起来更现实。 现有的黑盒文本攻击方法可以分为软标签设置和硬标签设置。 对于软标签方法，他们要求受害者模型提供置信度分数来计算每个问题的重要性单词，然后依次替换单词，直到生成对抗性示例。 然而，它是也不切实际，因为大多数真实的 API 不允许用访问置信度分数。 对于硬标签方法，他们只需要知道受害者模型的预测标签即可完成攻击任务，因而更具有实用性和前景。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713077959296-34022000-1cc1-4b5e-94bd-3432d3ab406b.png#averageHue=%23f6f1ea&clientId=u3dc7df86-cfe5-4&from=paste&height=356&id=u1a151193&originHeight=356&originWidth=369&originalType=binary&ratio=1&rotation=0&showTitle=false&size=64855&status=done&style=none&taskId=uf43032d3-8e96-49d1-8d18-3b8d238cfe2&title=&width=369" alt="1713077949376.png"><br />仅提出了少数几种方法处理黑盒硬标签文本广告对抗攻击任务，主要依靠基于启发式的或基于梯度的策略。 具体来说，HLGA是第一种硬标签对抗攻击方法，利用基于群体的启发式优化算法来制作合理且语义相似的对抗性示例。 然而，作为需要大量的对抗性可预测群体，基于群体的优化策略很容易陷入局部最优，HLGA不可避免地会消耗大量的查询次数。TextHoaxer将文本数据上的预算硬标签对抗性攻击任务制定为连续词嵌入中扰动矩阵的梯度优化问题空间。 LeapAttack通过设计一种可以互换离散替换和连续向量的新颖机制来利用基于梯度的优化。 虽然这些基于梯度的方法在一定程度上提高了查询效率，但仍然需要一些不必要的查询梯度估计不准确造成的。 此外，在预算紧张的场景下，查询效率低下会直接对语义相似度和扰动率带来严重的副作用。</p>
+<p><strong>Contributions：</strong><br />为了缓解上述问题，我们提出了一个简单而有效的框架来产生高高质量黑盒硬标签对抗攻击，称为 HQA-Attack。 HQAAttack的概述如图1所示。“高质量”是指HQA-Attack方法可以生成在严格查询下具有高语义相似性和低扰动率的对抗性示例预算。 具体来说，HQA-Attck首先通过初始化生成对抗样本，然后依次将尽可能多的原始单词替换回去，从而缩小扰动率。最后，它利用同义词集进一步优化对抗性示例，方向为可以提高语义相似度并同时满足对抗条件。 此外，为了避免遍历同义词集，它会为每个更改的单词找到一个过渡同义词，从而在一定程度上减少了查询次数。 八个公共基准的实验结果数据集和两个真实的API（谷歌云和阿里云）证明HQA Attack在语义相似度和扰动率方面比其他强基线表现更好在相同的查询预算下。</p>
+<p><strong>Method：</strong><br />软标签设置中的对抗性攻击依赖于所有类别的概率分布生成对抗性例子。 一系列策略利用贪心算法制作对抗性示例，首先确定单词替换顺序并贪婪地替换在此顺序下的每个单词。 TextFooler首先根据删除每个单词后的预测变化，然后根据单词重要性，直到生成对抗性示例。 类似地，TextBugger计算通过比较预测分别得出句子的重要性和单词的重要性移除它们之前和之后。 此外，还有一些方法使用组合生成对抗性示例的优化算法。<br />硬标签设置中的对抗性攻击只允许访问预测的标签，这看起来更具有挑战性和实用性。 HLGA是第一个硬标签文本对抗攻击方法。 它用随机初始化和搜索空间缩减以获得初期的对抗性示例，然后使用遗传算法包括变异、选择和交叉三种操作进一步优化对抗性的例子。 虽然 HLGA 可以生成具有高语义的对抗性示例与原始示例相似且扰动率低，需要维持较大的候选每次迭代都会设置，这会浪费大量的查询。 为了缓解这个问题，TextHoaxer使用词嵌入空间来表示文本，并引入扰动矩阵和新颖的目标函数由语义相似项、成对扰动约束组成和稀疏约束。 通过使用基于梯度的策略来优化扰动矩阵，TextHoaxer 可以在紧张的预算内生成适当的对抗性示例。 LeapAttack 是另一种基于梯度的方法。 随机初始化后，它通过以下方式优化对抗性示例不断地将示例移近决策边界，估计梯度并找到更新对抗性例子的正确词语。 在附录 K 中，我们进一步讨论了一些潜在的硬标签文本对抗攻击的应用场景。<br />在本文中，我们关注黑盒硬标签文本对抗攻击，即攻击者只能从受害者模型中获取预测的标签来生成对抗的例子。具体来说，给出了一个原始的例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713082784676-4ef96ee8-1fe1-406a-91df-432e3cb307ca.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=24&id=uce0e5c0b&originHeight=24&originWidth=152&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1939&status=done&style=none&taskId=ud5ac983b-6e88-4532-89c1-6683b59d733&title=&width=152" alt="image.png">有地面真实标签<img src="https://cdn.nlark.com/yuque/__latex/bf98c0ddcbe9c1e535f767c78c3aa813.svg#card=math&code=y&id=UKSH5">，其中<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=ukk5k">是第<img src="https://cdn.nlark.com/yuque/__latex/2443fbcfeb7e85e1d62b6f5e4f27207e.svg#card=math&code=i&id=i9fX0">个单词，<img src="https://cdn.nlark.com/yuque/__latex/df378375e7693bdcf9535661c023c02e.svg#card=math&code=n&id=bE0ml">是<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=Ioh45">中的单词总数。本任务旨在建立一个敌对的例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=u27c6b4e4&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170" alt="image.png">。通过将包含<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=vF61T">本身的同义词集<img src="https://cdn.nlark.com/yuque/__latex/f68a44577aeba338f812a2315c0c5302.svg#card=math&code=S%28w_i%29&id=WBxqG">中的同义词<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=lPQcm">替换为原始词<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=bYx5e">，从而误导受害者模型<img src="https://cdn.nlark.com/yuque/__latex/18f3c2855f0e85a1ac2257f64d917144.svg#card=math&code=f&id=QM0bb">输出一个不正确的预测结果：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083207480-30cd11e0-1729-4933-a5dc-07527796720b.png#averageHue=%23faf7f4&clientId=u718981f7-f8e3-4&from=paste&height=29&id=ua217848e&originHeight=29&originWidth=147&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2314&status=done&style=none&taskId=ue8cd070c-cf4b-4237-beb3-15882afeb1d&title=&width=147" alt="image.png"><br />其中，等式(1)可以看作是对抗性的情况。可能存在几个对抗性的例子可以满足等式(1)，但最优的对抗性例子x˚是在所有候选样本中与原始例子x语义相似性最高的例子。正式地，<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083228482-3b5d4af7-78b9-4f00-baf5-e3e491e525fe.png#averageHue=%23fcfaf7&clientId=u718981f7-f8e3-4&from=paste&height=41&id=u92645bbf&originHeight=41&originWidth=355&originalType=binary&ratio=1&rotation=0&showTitle=false&size=5336&status=done&style=none&taskId=u394f268a-0681-4074-9665-4a6f4cc47a2&title=&width=355" alt="image.png"><br />其中，<img src="https://cdn.nlark.com/yuque/__latex/d70bff217a1d9c948dd4301cf9ba2637.svg#card=math&code=Sim%28x%2C%20x%27%29&id=r95wr">是<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=dUjuU">和<img src="https://cdn.nlark.com/yuque/__latex/a9cc33aa0d01f5a6ed94d209c0278ac3.svg#card=math&code=x%27&id=w8KFr">之间的语义相似性。表1详细总结了符号说明。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083351935-fbc5b44f-ce48-495b-87ad-71f11b19b987.png#averageHue=%23f6f3f0&clientId=u718981f7-f8e3-4&from=paste&height=269&id=ud4e945e1&originHeight=269&originWidth=472&originalType=binary&ratio=1&rotation=0&showTitle=false&size=48617&status=done&style=none&taskId=u9f00e199-6f70-4f2d-a98e-ad022cc0d7e&title=&width=472" alt="image.png"><br />为了完成黑盒硬标签文本对抗攻击任务，我们遵循以前的工作首先利用随机初始化来生成对抗性示例。 具体来说，考虑原始示例中词性 (POS) 为名词、动词、副词和形容词的每个单词 <img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=xGyLE">，我们随机选择一个同义词<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=qdiTd">来自 <img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=PLe9J"> 的同义词集 <img src="https://cdn.nlark.com/yuque/__latex/f68a44577aeba338f812a2315c0c5302.svg#card=math&code=S%28w_i%29&id=PucNY"> 作为 <img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=k31XQ">的替换，和重复此过程，直到生成对抗性示例 <img src="https://cdn.nlark.com/yuque/__latex/a9cc33aa0d01f5a6ed94d209c0278ac3.svg#card=math&code=x%27&id=mMpxz">满足对抗条件。显然，使用随机初始化来生成对抗样本通常需要改变原始示例中存在多个单词，因此必然导致语义相似度较低扰动率大。 为了缓解上述问题，我们尝试在第<img src="https://cdn.nlark.com/yuque/__latex/cead1760d9d5723460c4b8d4028f113a.svg#card=math&code=t&id=j9N4R">次迭代<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=Hkwx7">中迭代优化原始例<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=DfBD8">和对抗性例之间的语义相似性，其中<img src="https://cdn.nlark.com/yuque/__latex/8f04bdf7645e34197a84fb043aaf0198.svg#card=math&code=1%5Cle%20t%20%5Cle%20T&id=BsCfI">和<img src="https://cdn.nlark.com/yuque/__latex/1553dae3cc5c15cddb4f5b5a367b0aba.svg#card=math&code=T&id=QKFST">为迭代总数。<br />为了提高生成的对抗样本的语义相似度，之前的工作首先以每个原词带来的语义相似度提升作为衡量标准决定替换顺序，然后在每次迭代中不断放回原来的单词。 它意味着在每次迭代中，通过遍历对抗性示例中的每个单词，语义相似度改进只计算一次，并且替换顺序是预先确定的。然而，用原始单词进行每次替换都会改变生成的中间结果对抗性示例，从而影响原始示例和示例之间的语义相似度中间生成对抗性示例，因此只需计算语义相似度改进在每次迭代开始时确定替换顺序不准确。<br />针对上述问题，我们建议不断地替换原词，这样可以使中间生成的对抗样本与原始示例，直到违反对抗条件。具体来说，给定第t次迭代中的原始样本<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713082784676-4ef96ee8-1fe1-406a-91df-432e3cb307ca.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=24&id=PmmvO&originHeight=24&originWidth=152&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1939&status=done&style=none&taskId=ud5ac983b-6e88-4532-89c1-6683b59d733&title=&width=152" alt="image.png">和对抗性例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=dBV1u&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170" alt="image.png">，我们可以用以下步骤替换原始单词。<br />1.从<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=oklYO">中挑选出一个合适的替换词<img src="https://cdn.nlark.com/yuque/__latex/6d65ccc7176953587d009efc17010568.svg#card=math&code=w_%2A&id=xFkgP">，公式如下：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713084238064-7b6ab33f-f991-4aa6-a00e-7f3df9d46dad.png#averageHue=%23fbf8f4&clientId=u718981f7-f8e3-4&from=paste&height=34&id=u61df3641&originHeight=34&originWidth=362&originalType=binary&ratio=1&rotation=0&showTitle=false&size=6175&status=done&style=none&taskId=u32cf9d82-8aaf-431f-a2fb-c482f19ef94&title=&width=362" alt="image.png"><br />其中，<img src="https://cdn.nlark.com/yuque/__latex/85fac01fbc81484467b1ec4fe2dcba22.svg#card=math&code=Sim%28x%2Cx%27_t%28w_i%29%29&id=zikY8">是<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=cJU1I">和<img src="https://cdn.nlark.com/yuque/__latex/0c2a385221c9e9e36617711539f82727.svg#card=math&code=x%27_t%28w_i%29&id=NpzQM">之间的语义相似度，<img src="https://cdn.nlark.com/yuque/__latex/0c2a385221c9e9e36617711539f82727.svg#card=math&code=x%27_t%28w_i%29&id=Stcf9">是用<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=ie0jq">替换对应的单词<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=pYjxI">得到的例子。<img src="https://cdn.nlark.com/yuque/__latex/5246d05f45726eeea81453b5f3c6b19c.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_i%29%29&id=GWWAY">是一个二值函数，定义为：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713084600125-f4de43da-7188-4c75-b679-7ac8905fc1fd.png#averageHue=%23fbf8f5&clientId=u718981f7-f8e3-4&from=paste&height=48&id=u86215462&originHeight=48&originWidth=333&originalType=binary&ratio=1&rotation=0&showTitle=false&size=5998&status=done&style=none&taskId=ue4ba01ba-6769-4fcc-91f6-f85e5eec75b&title=&width=333" alt="image.png"><br />其中，<img src="https://cdn.nlark.com/yuque/__latex/18f3c2855f0e85a1ac2257f64d917144.svg#card=math&code=f&id=BwbZw">为受害者模型。如果<img src="https://cdn.nlark.com/yuque/__latex/2c35e0fa4a53bb79e2c88163f89000ca.svg#card=math&code=f%28x%29%20%5Cneq%20f%28x%27_t%28w_i%29%29&id=JPy91">，则<img src="https://cdn.nlark.com/yuque/__latex/a42a4fc28b384cc408de066beed57485.svg#card=math&code=C&id=kvIpe">等于1，否则为0。<br />2.如果<img src="https://cdn.nlark.com/yuque/__latex/27b34dee715897c715cd461bc2642afc.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_%2A%29%29%20%3D%201&id=eSuSk">，则表示<img src="https://cdn.nlark.com/yuque/__latex/e7b9a4c85936635c359399ef7fe7436d.svg#card=math&code=x%27_t%28w_%2A%29&id=BrBZR">可以成功攻击。我们用<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=kb0iw">中对应的原始单词替换为<img src="https://cdn.nlark.com/yuque/__latex/6d65ccc7176953587d009efc17010568.svg#card=math&code=w_%2A&id=hDVAZ">，并重复上述步骤。<br />3.如果<img src="https://cdn.nlark.com/yuque/__latex/05b4ce6ecc0c57dbd686c9d849f9f6ae.svg#card=math&code=C%28f%2Cx%2Cx%27_t%28w_%2A%29%29%20%3D%200&id=iBSRV">，则表示<img src="https://cdn.nlark.com/yuque/__latex/e7b9a4c85936635c359399ef7fe7436d.svg#card=math&code=x%27_t%28w_%2A%29&id=IYyGY">不能满足对抗性条件。我们终止交换过程，并返回上一步的结果。<br />经过上述过程，我们可以得到一个新的对抗样本<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=c7a4I">可以保留原来的尽可能多的单词，从而提高语义相似度并降低扰动率。算法流程如附录A所示，计算复杂度和分析查询编号见附录C.1。<br />为了进一步提高生成的对抗样本的质量，我们优化了对抗样本例如，利用每个单词的同义词集。 有人可能会说我们可以直接遍历同义词集合寻找语义相似度最高的最理想同义词词并同时满足对抗条件。 然而，在大多数实际应用中场景下，查询数量通常是有限的。 为了避免遍历同义词集，我们建议通过以下两个步骤优化对抗性示例。 (1) 确定优化方案命令; (2)依次更新对抗样本。 计算复杂度分析查询编号见附录C.2。<br />在这一步中，我们的目标是确定一个合适的优化顺序。为了保证生成的对抗性实例的多样性，我们利用抽样方法来确定优化顺序。抽样方法所使用的概率分布如下。对于<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=ITDyc">中的<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=fodY0">和<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=XWdR0">中的<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=oOC9A">，我们首先使用反拟合的词向量[29]得到它们对应的词向量，并计算它们之间的余弦距离如下：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085196906-fdd152fa-09b5-44cb-975d-9441dbc7b921.png#averageHue=%23faf8f4&clientId=u718981f7-f8e3-4&from=paste&height=29&id=u4a69ace2&originHeight=29&originWidth=183&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3178&status=done&style=none&taskId=uc00696ff-c57b-4fb6-98ee-2bb68edd29c&title=&width=183" alt="image.png"><br />其中，<img src="https://cdn.nlark.com/yuque/__latex/2ad38a23b40c4d62ec987290b8c64cac.svg#card=math&code=v_%7Bw_i%7D&id=yRdbo">和<img src="https://cdn.nlark.com/yuque/__latex/1952fef64bee3dba944df5f93f5ae3e9.svg#card=math&code=v_%7Bw%27_i%7D&id=Floqq">分别表示<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=V4pIE">和<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=PXchi">的单词向量。<img src="https://cdn.nlark.com/yuque/__latex/dc4ff2f7f8c631e916f353e0efda1225.svg#card=math&code=cos%28.%2C.%29&id=enxQR">是余弦相似度函数。然后我们用以下公式计算与<img src="https://cdn.nlark.com/yuque/__latex/d99fd2df7b5f652a4b7fc593fb9df750.svg#card=math&code=w_i&id=zijPK">在<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=PGUfS">中的位置相关的概率<img src="https://cdn.nlark.com/yuque/__latex/39c69fbad0041c1d5caa9acf313cb0e6.svg#card=math&code=p_i&id=aQoQX">：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085375643-e286e7a4-0781-4935-96ee-6c55b2e707fa.png#averageHue=%23f6f4f3&clientId=u718981f7-f8e3-4&from=paste&height=50&id=ud57bceef&originHeight=50&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3781&status=done&style=none&taskId=ub40b86d5-ada4-4ab5-bbaf-e52245cd490&title=&width=170" alt="image.png"><br />其中，<img src="https://cdn.nlark.com/yuque/__latex/4760e2f007e23d820825ba241c47ce3b.svg#card=math&code=m&id=UoRW8">是在<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=DnSZy">和<img src="https://cdn.nlark.com/yuque/__latex/712ecf7894348e92d8779c3ee87eeeb0.svg#card=math&code=x&id=ouwhQ">之间改变的单词的总数。根据概率分布，我们可以得到<img src="https://cdn.nlark.com/yuque/__latex/23ba71a1373c0f73e4f52920cc774716.svg#card=math&code=x%27t&id=MCqm8">的优化顺序。<br />根据优化顺序，我们用同义词集按顺序更新对抗性示例。特别是，对于第t次迭代中的对抗性示例<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=yM0DT">，我们用以下步骤来更新它。(1)查找过渡词；(2)估计更新方向；(3)更新对抗性示例。<br />**找到过渡词:**这一步的目的是搜索一个合理的过渡词，从而避免遍历每个更改的单词的同义词集。给定敌对的例子<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713083011247-8c783361-4561-4e96-b2b8-86b8668fec1f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=23&id=Jrbdq&originHeight=23&originWidth=170&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1987&status=done&style=none&taskId=ud85e2b1f-1a08-48c9-b633-1aba79a5cda&title=&width=170" alt="image.png">和当前优化单<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=wV68y">，我们随机选择<img src="https://cdn.nlark.com/yuque/__latex/72cb3a229067770aeb6caa625a65a1a1.svg#card=math&code=r&id=ijaLN">同义词构造设置<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085627422-378b7547-145c-4f0e-bb8e-89e782c30fd4.png#averageHue=%23faf6f2&clientId=u718981f7-f8e3-4&from=paste&height=29&id=u521286dd&originHeight=29&originWidth=189&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2972&status=done&style=none&taskId=u682a5131-2a5c-4add-97a2-ece2738ea5f&title=&width=189" alt="image.png">，使用每个元素替换<img src="https://cdn.nlark.com/yuque/__latex/79b733ad92335d362b8400a54193e034.svg#card=math&code=w%27_i%0A&id=AclK3">和<img src="https://cdn.nlark.com/yuque/__latex/ae4caee5e098d917646e8f24d8d4d1be.svg#card=math&code=x%27_i&id=uZ0ac">，然后获得过渡词<img src="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=Ba8kQ">与以下公式：<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085742668-df5508cb-c2ea-4df3-b8f6-04993240adb8.png#averageHue=%23fcfaf7&clientId=u718981f7-f8e3-4&from=paste&height=47&id=ue20362e7&originHeight=47&originWidth=391&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7288&status=done&style=none&taskId=ued3cb446-c34f-46a2-8d17-86a4ae32303&title=&width=391" alt="image.png"><br />其中<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085871195-cd9861ef-613f-4dd6-abc0-ffb9f01effcb.png#averageHue=%23fcf9f5&clientId=u718981f7-f8e3-4&from=paste&height=38&id=u5d038b85&originHeight=38&originWidth=66&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2145&status=done&style=none&taskId=ueb664c0a-9a32-4a68-a017-c0e4483be21&title=&width=66" alt="image.png">是用<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713085888921-1108d2bc-8a83-43ab-a7cd-8fee685624b8.png#averageHue=%23faf7f3&clientId=u718981f7-f8e3-4&from=paste&height=29&id=uf859f71b&originHeight=29&originWidth=74&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1891&status=done&style=none&taskId=udbde87d0-0898-480a-bf0f-028705df4d5&title=&width=74" alt="image.png">替换<img src="https://cdn.nlark.com/yuque/__latex/e8f9a7eed256da672986d0d8237ce9d5.svg#card=math&code=x%27_t&id=FESIW">中相应的单词<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=MCz2F">得到的例子。根据等式(7)，我们可以得到，<img src="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=yACfh">可以使示例具有对抗性，并在一定程度上提高语义相似性，同时避免通过同义词集。此外，我们还可以在过渡词<img src="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=ngt8P">周围搜索其他可能的替换词。<br /><strong>估计更新的方向：</strong>由于过渡词<img src="https://cdn.nlark.com/yuque/__latex/6ad45305e4fbc50c78ef559008e90987.svg#card=math&code=%5Coverline%20w_i&id=Mp1B2">来源于一个随机生成的同义词集，我们可以以一个合理的方向进一步优化它。具体来说，我们首先通过从<img src="https://cdn.nlark.com/yuque/__latex/8be6885fe1c17117a386d48ae4444ef6.svg#card=math&code=S%28%5Coverline%20w_i%29&id=OtcMG">中随机抽样<img src="https://cdn.nlark.com/yuque/__latex/df976ff7fcf17d60490267d18a1e3996.svg#card=math&code=k&id=IU5l0">个同义词来生成集合<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086035746-4c1a15b2-c07c-4399-b2d3-89ed1bf98edb.png#averageHue=%23f8f4f0&clientId=u718981f7-f8e3-4&from=paste&height=27&id=ufafb7796&originHeight=27&originWidth=189&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2957&status=done&style=none&taskId=u5e653393-bfcf-44e2-8457-8d3af4b9e2a&title=&width=189" alt="image.png">，然后获得设置<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086144939-67e84e73-c6e5-4c16-ad8e-27506b338e2e.png#averageHue=%23f9f5ef&clientId=u718981f7-f8e3-4&from=paste&height=26&id=uf630f614&originHeight=26&originWidth=286&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4079&status=done&style=none&taskId=ubcb0aefb-4341-4425-ae7d-58982479dbe&title=&width=286" alt="image.png">，其中<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086185942-c015462f-e565-452f-ad80-5ca329893684.png#averageHue=%23faf6f0&clientId=u718981f7-f8e3-4&from=paste&height=30&id=ua15148b3&originHeight=30&originWidth=65&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2115&status=done&style=none&taskId=u24c35c68-b0ca-4972-9f9f-4ee15a95e39&title=&width=65" alt="image.png">是用<img src="https://cdn.nlark.com/yuque/__latex/8c114c023858474e0051b31ac447af72.svg#card=math&code=w%27_i&id=pUbbE">替换<img src="https://cdn.nlark.com/yuque/__latex/ae4caee5e098d917646e8f24d8d4d1be.svg#card=math&code=x%27_i&id=I7eck">z中的<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086271313-7a939e4f-1147-4e3c-b4ef-b2b1712e8e27.png#averageHue=%23e1c095&clientId=u718981f7-f8e3-4&from=paste&height=26&id=ue6a361b8&originHeight=26&originWidth=29&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1082&status=done&style=none&taskId=uc29fe2bf-dd39-4d54-88a8-8e4ddea45cf&title=&width=29" alt="image.png">例子。通过计算每个元素之间的语义相似度O和原始文本x，我们可以得到集<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086287872-ef50dad4-2f1a-4f4e-b3fd-51036466a55f.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=25&id=u22fdf0e1&originHeight=25&originWidth=179&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2609&status=done&style=none&taskId=u5cc9d886-ad1a-4bc4-9ce9-95d64467e34&title=&width=179" alt="image.png">，其中<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086302311-a0f632ba-06cf-40b9-8a96-013687c5f4da.png#averageHue=%23f9f5f0&clientId=u718981f7-f8e3-4&from=paste&height=26&id=u8c683dea&originHeight=26&originWidth=185&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3981&status=done&style=none&taskId=ua311e183-119f-4654-97cc-148669ad727&title=&width=185" alt="image.png">是x和<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086317625-ffb855e0-47c4-4ded-b2b8-916907d0f1f7.png#averageHue=%23f9f5ee&clientId=u718981f7-f8e3-4&from=paste&height=28&id=u4f3cc588&originHeight=28&originWidth=63&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2139&status=done&style=none&taskId=u80cd43e8-618f-4b0f-8a1e-66390ed4adf&title=&width=63" alt="image.png">之间的语义相似性。以类似的方式，x和<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086327459-63f988b7-2cdd-49c0-89d0-d71bbc140a12.png#averageHue=%23f9f5ee&clientId=u718981f7-f8e3-4&from=paste&height=28&id=uab5415c2&originHeight=28&originWidth=63&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2139&status=done&style=none&taskId=uad83d0fe-230b-40af-a1e8-4886c602099&title=&width=63" alt="image.png">旋转之间的语义相似度可以通过<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086346941-afdb7bd4-a383-4dc7-bfae-fbe969bb61fc.png#averageHue=%23f7f2ed&clientId=u718981f7-f8e3-4&from=paste&height=22&id=udeb2babd&originHeight=22&originWidth=161&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3125&status=done&style=none&taskId=u919b5c9a-e16e-41e2-80fa-88889c076d6&title=&width=161" alt="image.png">来计算。<br />直观地说，如果<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086444411-685aedc9-1e2b-4a4e-87b4-0de65b75339f.png#averageHue=%23faf8f5&clientId=u718981f7-f8e3-4&from=paste&height=26&id=ue692038e&originHeight=26&originWidth=101&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1695&status=done&style=none&taskId=ua0f22fc2-0ef7-4f99-8f02-704cfff5737&title=&width=101" alt="image.png">，则表示将单词向量<img src="https://cdn.nlark.com/yuque/__latex/89111f3d3fc401be99edcd8a8211022c.svg#card=math&code=v_%7B%5Coverline%20w_i%7D&id=ZNr8e">推向会增加语义相似度，即<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086499432-aab6e032-3721-4f44-b1aa-cc9f86712d88.png#averageHue=%23f9f5f2&clientId=u718981f7-f8e3-4&from=paste&height=24&id=u0e949a14&originHeight=24&originWidth=93&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1390&status=done&style=none&taskId=u6d8791bc-0849-490d-8a13-0dd07ff44e2&title=&width=93" alt="image.png">是可以提高语义相似度的方向。如果<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086511617-fa697ee8-fa7d-413d-8b55-6b06abefb44d.png#averageHue=%23f9f6f3&clientId=u718981f7-f8e3-4&from=paste&height=23&id=u1c2923a7&originHeight=23&originWidth=99&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1668&status=done&style=none&taskId=uda03d6ab-58df-4daf-8b90-2f6c1fffec2&title=&width=99" alt="image.png">，沿单词向量<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086539711-b172419b-2560-4870-98e1-75c4ccb9b924.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=25&id=u6640b418&originHeight=25&originWidth=89&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1379&status=done&style=none&taskId=u55beaf7b-4477-4a83-a1cc-127ae650051&title=&width=89" alt="image.png">的逆方向移动单词向量可以提高语义相似性。基于上述直觉，我们通过对k个可能方向的加权平均来估计最终的更新方向u。正式地，<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086555522-0fb36885-c2e2-4fc2-ad07-9d825d731c77.png#averageHue=%23faf9f7&clientId=u718981f7-f8e3-4&from=paste&height=58&id=u0338dd03&originHeight=58&originWidth=196&originalType=binary&ratio=1&rotation=0&showTitle=false&size=4188&status=done&style=none&taskId=ud60cd329-264e-42df-bcc4-53585389e16&title=&width=196" alt="image.png"><br />其中<img src="https://cdn.nlark.com/yuque/__latex/acdcbdeb2eccdf3e6705b176a0b9730d.svg#card=math&code=%5Calpha%20_j&id=IBbTB">是与方向<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086653403-40d86847-545d-4b06-9e95-21912238b5ab.png#averageHue=%23f9f6f2&clientId=u718981f7-f8e3-4&from=paste&height=24&id=u43b07e2d&originHeight=24&originWidth=95&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1524&status=done&style=none&taskId=u0f1b07f9-9587-4598-9bbc-6cd027fe44a&title=&width=95" alt="image.png">相关的对应权重，它可以用<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086664492-769c68ab-daea-4d98-8dda-44d212a24603.png#averageHue=%23f9f7f4&clientId=u718981f7-f8e3-4&from=paste&height=32&id=u507386b9&originHeight=32&originWidth=248&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3839&status=done&style=none&taskId=u6d161348-aa66-4c9e-b474-0f15ebccb05&title=&width=248" alt="image.png">来计算。<br /><strong>更新对抗性的示例：</strong>由于文本数据的离散性质，我们需要使用更新方向u从<img src="https://cdn.nlark.com/yuque/__latex/986f2182bf3b8e740e95a01577f3617d.svg#card=math&code=S%EF%BC%88w_i%EF%BC%89&id=NZMwq">挑选出相应的替换词<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086818343-8eb2e510-2ce1-4c17-8e92-54cf87eec062.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u63a0beed&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=ufdc32f86-b620-44b5-b181-db43f3d8d37&title=&width=22" alt="image.png">，<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086823787-a9e677a3-621c-4bc1-b2da-a9f7671e1156.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u5383e296&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=u6b46ea0e-5460-4599-b829-70dfe8261ce&title=&width=22" alt="image.png">是最大余弦相似度u和<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086847024-b6ebf592-cd18-4107-b7af-5f3409aa6d44.png#averageHue=%23f7f3ef&clientId=u718981f7-f8e3-4&from=paste&height=19&id=u01a8c6bb&originHeight=19&originWidth=79&originalType=binary&ratio=1&rotation=0&showTitle=false&size=969&status=done&style=none&taskId=u4461398b-0b38-48be-821e-0c07f57d3c7&title=&width=79" alt="image.png">和确保<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086859446-9d9ec35e-474c-4e81-8add-fcd5bc98ec06.png#averageHue=%23e2c398&clientId=u718981f7-f8e3-4&from=paste&height=20&id=uabb2714c&originHeight=20&originWidth=55&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1637&status=done&style=none&taskId=u3dce88d3-e94b-4d5e-93c4-cd5f5f81f76&title=&width=55" alt="image.png">满足对抗的条件。得到<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086869455-c7bd3c64-1a55-47dc-8090-24284ceb39a9.png#averageHue=%23e2c398&clientId=u718981f7-f8e3-4&from=paste&height=20&id=u2719a6cc&originHeight=20&originWidth=55&originalType=binary&ratio=1&rotation=0&showTitle=false&size=1637&status=done&style=none&taskId=uc2eecdeb-9db7-46cd-929b-4b53ac83540&title=&width=55" alt="image.png">后，我们可以按优化顺序生成<img src="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=Wj6sK">。此外，为了减少查询次数和减少扰动率，在实现程序时，我们首先使用x初始化<img src="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=mt7Yd">，然后将单词<img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713086818343-8eb2e510-2ce1-4c17-8e92-54cf87eec062.png#averageHue=%23d9ba95&clientId=u718981f7-f8e3-4&from=paste&height=20&id=Fasl8&originHeight=20&originWidth=22&originalType=binary&ratio=1&rotation=0&showTitle=false&size=736&status=done&style=none&taskId=ufdc32f86-b620-44b5-b181-db43f3d8d37&title=&width=22" alt="image.png">逐个替换，直到<img src="https://cdn.nlark.com/yuque/__latex/9ec4b957faa4bd81c9b0ee200f78a1f4.svg#card=math&code=x%27_%7Bt%2B1%7D&id=tGsaF">满足对抗条件。<br />HQA-Attack的详细算法流程在附录B中给出。特别地，HQA-Attack首先通过随机初始化获得初始对抗样本。 然后进入主循环。 在每次迭代，HQA-Attack首先将原始单词替换回去，然后确定优化顺序，最后依次更新对抗样本。 另外，我们还提供了一些机制附录D中从决策边界角度分析HQA-Attack。<br /><strong>Experiments：</strong><br /><strong>数据集：</strong>我们在五个公共文本分类数据集先生，AG的News，Yahoo，Yelp，IMDB，以及三个自然语言推理数据集SNLI，MNLI，mMNLI上进行了实验。详细的数据集描述见附录e。我们按照之前的方法，对每个数据集取1000个测试示例进行实验。<br /><strong>基线：</strong>我们比较了三种最先进的黑盒硬标签文本对抗性攻击方法： (1) HLGA是一种利用遗传算法生成对抗性例子的硬标签对抗性攻击方法。(2)文本Hoaxer是一种硬标签对抗攻击方法，将文本数据的预算硬标签对抗攻击任务定义为连续词嵌入空间中扰动矩阵的梯度优化问题。(3)跳跃攻击是一种最近的硬标签对抗性攻击方法，它通过蒙特卡罗方法来估计梯度。<br /><strong>评估指标：</strong> 我们使用两个广泛使用的评估指标语义相似性和扰动速度。 对于语义相似度，我们利用通用序列编码器[4]来计算语义两个文本之间的相似性。 语义相似度的范围在r0,1s之间，较大者语义相似度表明攻击性能更好。 对于扰动率，我们使用对抗性示例中更改的单词数与总单词数的比率，以及扰动率越低表明结果越好。<br /><strong>受害者模型：</strong>我们采用三种广泛使用的自然语言处理模型作为受害者模型： BERT 、WordCNN和WordLSTM。所有的模型参数都取自之前的作品。我们还攻击了一些高级模型，如T5和DeBERT，结果见附录f。为了进一步验证不同算法在实际应用中的有效性，我们还尝试使用谷歌云API（<a target="_blank" rel="noopener" href="https://cloud.google.com/natural-language">https://cloud.google.com/natural-language</a>）和阿里巴巴云API（<a target="_blank" rel="noopener" href="https://ai.aliyun.com/nlp">https://ai.aliyun.com/nlp</a>）作为受害者模型。<br /><strong>实施细节：</strong>对于随机初始化，我们采用了与以前的方法相同的方法。在初始化之后，我们按照来执行一个预处理步骤，以删除不必要的替换词。对于超参数，我们始终为所有数据集设置r&#x3D;5和k&#x3D;5。我们的详细参数调查见附录g。此外，在优化过程中，如果我们对相同的敌对例子重新优化三次，并且没有生成新的更好的敌对例子，我们随机回到最后三到四个敌对的例子。我们不会重新优化一个敌对的例子超过两次。为了进行公平的比较，我们通过使用反拟合词向量为每个单词生成50个同义词。我们还进行了基于基于bert的同义词的实验，结果见附录H。<br />我们完全按照前面的工作，将查询预算设置为1000，即攻击者允许的查询数量为1000。由于不同的算法使用相同的随机初始化步骤来决定对抗性攻击后的预测精度，因此不同的算法具有相同的预测精度。我们的目标是生成具有较高语义相似度和较低扰动率的对抗性例子。表2和表3报告了在攻击文本分类模型时的实验结果。最好的结果用粗体突出显示。<br />如表2和表3所示，当查询限制为1000时，对于不同的数据集和任务，HQAAttack总是可以生成具有最高语义相似度和最低扰动率的对抗性示例。具体来说，对于具有短文本数据的数据集，HQA-Attack在攻击BERT、WordLSTM时，平均语义相似度分别提高了6.9%、6.5%、6.9%，平均扰动率降低了0.777%、0.832%、0.983%。对于长文本数据的数据集IMDB，HQA-Attath与攻击BERT、WordCNN和WordLSTM相比，平均语义相似度分别提高了4.5%、3.4%、2.7%，平均扰动率降低了1.426%、0.601%、0.823%。对于AG等两个以上类别的数据集，HQA-Attack在攻击BERT、WordCNN和WordLSTM时，比第二最佳方法的平均语义相似度分别提高了10.6%、8.8%、11.6%，平均扰动率降低了4.785%、3.885%、5.237%。这些结果表明，HQA-攻击可以产生高质量的对抗性攻击。<br />攻击效率是评估攻击性能的一个重要标准，因为在大多数基于DNN的NLP平台中，查询的数量是有限的。因此，我们进一步比较了所提出的HQA攻击在不同查询预算r100、300、500、700、700、1000s下的两种最新方法。如图2所示，随着查询预算的增加，所有方法的平均语义相似度都在不断增加，而所有方法的平均扰动率都在不断下降。在语义相似度和扰动率方面，HQA-Attack在所有预算中都表现得远远优于其他方法。这些结果进一步验证了我们提出的HQA-Attack能够在不同的预算限制下生成具有较高语义相似性和较低扰动率的对抗性例子。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087533990-bfc9b734-db35-4881-993f-64bf185f072d.png#averageHue=%23f4f1ee&clientId=ub1881779-a13d-4&from=paste&height=565&id=u7b4d3390&originHeight=565&originWidth=720&originalType=binary&ratio=1&rotation=0&showTitle=false&size=130517&status=done&style=none&taskId=uebb0e672-8fda-4448-b1aa-c781872057e&title=&width=720" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087558778-539bface-3508-4495-896a-7e96bbbb9ad7.png#averageHue=%23f3f0ed&clientId=ub1881779-a13d-4&from=paste&height=198&id=u6a30049f&originHeight=198&originWidth=719&originalType=binary&ratio=1&rotation=0&showTitle=false&size=41888&status=done&style=none&taskId=u4cd09154-2ca7-4733-9e57-89543556a26&title=&width=719" alt="image.png"><br />为了进一步验证不同算法的有效性，我们尝试使用文本攻击器、跳跃攻击和HQA-攻击来攻击两个真实世界的api：谷歌云（<a target="_blank" rel="noopener" href="https://cloud.google.com/naturallanguage">https://cloud.google.com/naturallanguage</a>）和阿里巴巴云（<a target="_blank" rel="noopener" href="https://ai.aliyun.com/nlp">https://ai.aliyun.com/nlp</a>）。为了进一步评估生成的对抗性例子的流畅性，我们添加了困惑度（PPL）作为额外的评估度量，通过使用GPT-2 Large [31]计算。PPL越低，说明性能越好。由于谷歌和阿里巴巴只提供有限的服务预算，我们从Mr数据集中选择100个长度大于或等于20个单词的示例进行实验，并限制每种方法只能查询API 350次。表4显示了文本攻击器、跳跃攻击和HQA-攻击的结果。可以看出，与第二优结果相比，HQA-Attack分别提高了谷歌云和阿里云的语义相似度5.7%、5.1%，降低了0.062%、0.007%和PPL 9、6。我们还比较了文本攻击器、跳跃攻击和HQA-攻击在不同预算限制下的性能。结果如图3所示。我们可以得到，HQA-Attack在大多数情况下可以具有较高的语义相似度和较低的扰动率，这进一步证明了HQA-Attack优于其他基线。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087694649-21cf86ed-f278-4a14-9373-05e568805a35.png#averageHue=%23efebe7&clientId=ub1881779-a13d-4&from=paste&height=165&id=uaff4ac91&originHeight=165&originWidth=434&originalType=binary&ratio=1&rotation=0&showTitle=false&size=27860&status=done&style=none&taskId=uc9a4b198-457f-4fc5-a830-fde9e1ec503&title=&width=434" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087766163-f963b53e-102f-4a52-aa6a-84206c507339.png#averageHue=%23f1efee&clientId=ub1881779-a13d-4&from=paste&height=342&id=u6b7847f7&originHeight=342&originWidth=725&originalType=binary&ratio=1&rotation=0&showTitle=false&size=130842&status=done&style=none&taskId=uaba52fc2-3b54-4d97-9535-7ca41e5b034&title=&width=725" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087785313-de7f568d-e1b0-410b-b84f-2582f52f3468.png#averageHue=%23f2f0ef&clientId=ub1881779-a13d-4&from=paste&height=218&id=uf6c49ff9&originHeight=218&originWidth=715&originalType=binary&ratio=1&rotation=0&showTitle=false&size=77050&status=done&style=none&taskId=u0699071c-bef0-4958-b871-0ae3237618a&title=&width=715" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087794972-8a4de1a7-514b-4479-b4c4-ee8f0b7d670a.png#averageHue=%23f2efed&clientId=ub1881779-a13d-4&from=paste&height=122&id=ueb36c271&originHeight=122&originWidth=503&originalType=binary&ratio=1&rotation=0&showTitle=false&size=17976&status=done&style=none&taskId=ub4729a0e-7c22-46cf-a31d-2492b1c3344&title=&width=503" alt="image.png"><br />我们利用Mr和IMDB数据集和HQA攻击数据集对Bert模型进行了人体评估实验。具体来说，对于每个数据集，我们首先随机选择50个原始样本，并使用每种对抗性攻击方法分别生成相应的50个对抗性示例。然后我们让10名志愿者注释这些样本标注类标签，并计算每种方法的平均分类精度（Acc）。直观地说，如果精度更高，这意味着生成的对抗性例子的质量更好。详细的Acc（%）结果如表5所示。结果表明，由HQA-Attack生成的对抗性实例更容易被正确分类，进一步验证了HQA-Attack在保留语义信息方面的优越性。<br />随着人工智能安全的发展，很多工作都集中在对抗性防御上攻击。 我们进一步比较了受害者模型用三种方法训练时的攻击性能有效的对抗训练策略 HotFlip 、SHIELD 和 DNE。 我们选择BERT模型作为受害者模型，将查询预算设置为1000，然后在AG 数据集。 我们还使用困惑度（PPL）作为附加评估指标来判断生成的对抗性示例的流畅性。 表6显示了攻击性能。 我们可以观察到与其他强基线相比，HQA-Attack 也可以获得最好的结果。<br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087973236-9f069984-f76f-4727-bf04-f294799c2344.png#averageHue=%23f2efec&clientId=ub1881779-a13d-4&from=paste&height=185&id=u05c1eee8&originHeight=185&originWidth=706&originalType=binary&ratio=1&rotation=0&showTitle=false&size=36065&status=done&style=none&taskId=ua21d26e1-7513-4112-b6a1-0e7b54d9d0f&title=&width=706" alt="image.png"><br /><img src="https://cdn.nlark.com/yuque/0/2024/png/39032054/1713087997090-ac7e7766-376b-4ce7-8a3b-9933b85e214b.png#averageHue=%23f2efec&clientId=ub1881779-a13d-4&from=paste&height=198&id=u1d0d043a&originHeight=198&originWidth=665&originalType=binary&ratio=1&rotation=0&showTitle=false&size=44202&status=done&style=none&taskId=udf8b206b-fe57-4794-8418-03d5384f110&title=&width=665" alt="image.png"><br />为了研究不同成分的有效性，我们对五个文本进行了消融研究攻击WordCNN 时的分类数据集。 结果如表7所示。随机初始化是指仅通过随机初始化步骤生成的对抗样本。 不带&#x2F;不带替换是指HQA-Attack模型无需替换原词后退一步。w&#x2F;o Optimizing 意味着 HQA-Attack 模型随机选择一个可以保持示例对抗性作为替换，在不优化的情况下将原始单词替换回去对抗性的例子。 很容易发现所有模块都对模型有贡献，这验证了替换原始单词的后退步骤很有用，优化对抗性示例步骤是也是不可或缺的。 为了进一步证明我们提出的单词回替换的有效性我们在附录 I 中添加了一些额外的实验。我们还列出了 HQA-Attack 生成的一些具体对抗示例，如附录 J 所示。这些示例进一步证明了我们提出的 HQA-Attack 模型可以生成高质量的黑盒硬标签对抗模型仅具有小扰动的示例。</p>
+<p><strong>Conclusion：</strong><br />在本文中，我们提出了一种名为HQA-Attack的新方法，以在黑盒硬标签设置中制作高质量的文本对抗性示例。HQAAttack通过替换原词，可以大大降低扰动率。HQA-Attack利用剩余更改词的同义词集对对抗性示例进行优化，可以提高语义相似度，减少查询预算。大量的实验结果表明，所提出的HQA-Attack方法能够生成具有高语义相似度、低扰动率、较少查询数的高质量对抗性实例。在未来的工作中，我们计划尝试更多的优化策略来完善模型，从而进一步提高文本对抗性攻击的性能。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/21/limeattack-local-explainable-method-for-textual-hard-label-adversarial-attack/" rel="prev" title="LimeAttack_ Local Explainable Method for Textual Hard-Label Adversarial Attack">
+      <i class="fa fa-chevron-left"></i> LimeAttack_ Local Explainable Method for Textual Hard-Label Adversarial Attack
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/04/21/connecting-large-language-models-with-evolutionary-algorithms-yields-powerful-prompt-optimizers/" rel="next" title="CONNECTING LARGE LANGUAGE MODELS WITH EVOLUTIONARY ALGORITHMS YIELDS POWERFUL PROMPT OPTIMIZERS">
+      CONNECTING LARGE LANGUAGE MODELS WITH EVOLUTIONARY ALGORITHMS YIELDS POWERFUL PROMPT OPTIMIZERS <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Qiu panjia</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Qiu panjia</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
